@@ -19,6 +19,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.signal import find_peaks
 from scipy.stats import chi2
 
+from waveletFunctions import wave_signif, wavelet
+
 #%% Use data from the power spectral analysis - read in either the unfiltered data
 # or the filtered data
 
