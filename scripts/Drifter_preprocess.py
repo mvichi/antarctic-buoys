@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Drifter_preprocess
+
+This script prepares the drifter data files from raw data
+It computes the geodetic drift from GPS location and standardizes variable 
+names
+
 Created on Tue Dec 28 15:03:27 2021
 
 @author: vichi
@@ -14,6 +20,7 @@ from geopy.distance import geodesic
 fmt = '%Y-%m-%d %H:%M:%S' # exclude %z
 ODIR = '../data/'
 BDIR='../data/raw/'
+
 #%% Compute drift and speed
 def drift_speed(drifter):
     lats = drifter['latitude (deg)'].values
@@ -65,7 +72,6 @@ for b,f in zip(buoy,file):
     drifter.to_csv(ODIR+b+'.csv')
 
 #%% Trident 4
-BDIR='/mnt/c/Users/marce/Documents/WORKS/SCIENCE/antarctic-buoys/data/'
 BFILE='Unit4.xlsx'
 latname='Latitude'
 lonname='Longitude'
@@ -91,11 +97,75 @@ file = ['2014S9_300234060376490_proc.csv',
         '2016P28_300234062787480_proc.csv',
         '2019P93_300234067701680_proc.csv'
         ]
-for b,f in zip(buoy,file):
-    DIR=BDIR+b+'_data/'    
-    drifter = pd.read_csv(DIR+f,parse_dates=True)
+for b,f in zip(buoy,file):   
+    drifter = pd.read_csv(BDIR+f,parse_dates=True)
     drifter['time'] = pd.to_datetime(drifter['time'],format=fmt)
     drifter.set_index('time',inplace=True)
+    drifter['Unit_ID'] = b
+    drifter = drift_speed(drifter)
+    drifter.to_csv(ODIR+b+'.csv')
+
+#%% WIIOS
+latname='gps/lat'
+lonname='gps/lon'
+timename='date/iso'
+
+buoy = ['WIIOS_NYU1','WIIOS_NYU2']
+file = ['10501_all_processed.csv',
+        '10502_all_processed.csv']
+
+for b,f in zip(buoy,file):
+    drifter = pd.read_csv(BDIR+f,parse_dates=True)
+    drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
+    drifter.set_index('time',inplace=True)
+    drifter.drop(timename, axis=1, inplace=True)
+    drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
+    drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
+    drifter.rename(columns={'temperature/air':'temperature (degC)'},inplace=True)
+    drifter['Unit_ID'] = b
+    drifter = drift_speed(drifter)
+    drifter.to_csv(ODIR+b+'.csv')
+#%% SAWS ISVP
+latname=' LATITUDE'
+lonname=' LONGITUDE'
+timename='Data Date (UTC)'
+
+buoy = ['ISVP1','ISVP2','ISVP3']
+file = ['300234067003010-300234067003010-20191015T064320UTC.csv',
+        '300234066992870-300234066992870-20191015T064314UTC.csv',
+        '300234067002060-300234067002060-20191015T064316UTC.csv']
+
+for b,f in zip(buoy,file):
+    drifter = pd.read_csv(BDIR+f,parse_dates=True)
+    drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
+    drifter.set_index('time',inplace=True)
+    drifter.drop(timename, axis=1, inplace=True)
+    drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
+    drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
+    drifter.rename(columns={' SST':'temperature (degC)'},inplace=True)
+    drifter.rename(columns={' BP':'barometric_pressure (hPa)'},inplace=True)
+    drifter['Unit_ID'] = b
+    drifter = drift_speed(drifter)
+    drifter.to_csv(ODIR+b+'.csv')
+
+#%% SAWS ISVP
+latname='latitude'
+lonname='longitude'
+timename='time'
+
+buoy = ['ISVP4','ISVP5','ISVP6']
+file = ['300234066433050.xlsx',
+        '300234066433051.xlsx',
+        '300234066433052.xlsx']
+
+for b,f in zip(buoy,file):
+    drifter = pd.read_excel(BDIR+f,parse_dates=True)
+    drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
+    drifter.set_index('time',inplace=True)
+    drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
+    drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
+    drifter.rename(columns={'sst':'temperature (degC)'},inplace=True)
+    drifter.rename(columns={'slp':'barometric_pressure (hPa)'},inplace=True)        
     drifter['Unit_ID'] = b
     drifter = drift_speed(drifter)
     drifter.to_csv(ODIR+b+'.csv')
