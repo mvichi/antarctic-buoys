@@ -35,16 +35,18 @@ def drift_speed(drifter):
                                                     (lats[i+1],lons[i])).meters
     drifter['drift_x (m)'] = DX
     drifter['drift_y (m)'] = DY
+    drifter['drift (m)'] = np.sqrt(DX**2+DY**2)
     
     time = drifter.index
     DT = []
     for i in range(len(time)-1):
         delta_t = abs(time[i]-time[i+1]) # use timedelta
         DT.append(delta_t.seconds)
-    DT = np.append(0, DT)
+    DT = np.append(0., DT)
+    drifter['delta_t (s)'] = DT
     
     # Modular speed of the drifter
-    drifter['U (m/s)'] = np.sqrt(DX**2+DY**2)/DT
+    drifter['U (m/s)'] = drifter['drift (m)']/DT
     # Zonal and meridional components
     drifter['u (m/s)'] = DX/DT
     drifter['v (m/s)'] = DY/DT
@@ -145,7 +147,7 @@ for b,f in zip(buoy,file):
     drifter.rename(columns={' SST':'temperature (degC)'},inplace=True)
     drifter.rename(columns={' BP':'barometric_pressure (hPa)'},inplace=True)
     drifter['Unit_ID'] = b
-    drifter = drift_speed(drifter)
+    drifter = drift_speed(drifter.sort_index()) # NOTE index is reversed in raw
     drifter.to_csv(ODIR+b+'.csv')
 
 #%% SAWS ISVP
