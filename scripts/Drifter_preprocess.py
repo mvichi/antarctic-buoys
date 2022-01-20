@@ -9,48 +9,18 @@ names
 
 Created on Tue Dec 28 15:03:27 2021
 
-@author: vichi
+@author: Marcello Vichi
 """
 
-import numpy as np
 import pandas as pd
-from geopy.distance import geodesic
+from Drifter import drift_speed,coordinates
 
 # date format = '%Y-%m-%d %H:%M:%S'
 fmt = '%Y-%m-%d %H:%M:%S' # exclude %z
 ODIR = '../data/'
 BDIR='../data/raw/'
 
-#%% Compute drift and speed
-def drift_speed(drifter):
-    lats = drifter['latitude (deg)'].values
-    lons = drifter['longitude (deg)'].values
-    
-    DX = np.zeros(lats.size)*np.nan
-    DY = np.zeros(lats.size)*np.nan
-    for i in range(len(DX)-1):
-        DX[i+1]=np.sign(lons[i+1]-lons[i])*geodesic((lats[i],lons[i]),
-                                                    (lats[i],lons[i+1])).meters
-        DY[i+1]=np.sign(lats[i+1]-lats[i])*geodesic((lats[i],lons[i]),
-                                                    (lats[i+1],lons[i])).meters
-    drifter['drift_x (m)'] = DX
-    drifter['drift_y (m)'] = DY
-    drifter['drift (m)'] = np.sqrt(DX**2+DY**2)
-    
-    time = drifter.index
-    DT = []
-    for i in range(len(time)-1):
-        delta_t = abs(time[i]-time[i+1]) # use timedelta
-        DT.append(delta_t.seconds)
-    DT = np.append(0., DT)
-    drifter['delta_t (s)'] = DT
-    
-    # Modular speed of the drifter
-    drifter['U (m/s)'] = drifter['drift (m)']/DT
-    # Zonal and meridional components
-    drifter['u (m/s)'] = DX/DT
-    drifter['v (m/s)'] = DY/DT
-    return drifter
+
     
 #%% Trident 1-3
 buoy = ['Trident_U1','Trident_U2','Trident_U3']
@@ -71,6 +41,7 @@ for b,f in zip(buoy,file):
     drifter['Temp'] -= 40. # add the offset
     drifter.rename(columns={'Temp':'temperature (degC)'},inplace=True)
     drifter = drift_speed(drifter)
+    drifter = coordinates(drifter)
     drifter.to_csv(ODIR+b+'.csv')
 
 #%% Trident 4
@@ -88,6 +59,7 @@ drifter.drop(timename, axis=1, inplace=True)
 drifter['Unit_ID'] = ID
 drifter.rename(columns={'Temperature':'temperature (degC)'},inplace=True)
 drifter = drift_speed(drifter)
+drifter = coordinates(drifter)
 drifter.to_csv(ODIR+ID+'.csv')
 
 #%% AWI 
@@ -105,6 +77,7 @@ for b,f in zip(buoy,file):
     drifter.set_index('time',inplace=True)
     drifter['Unit_ID'] = b
     drifter = drift_speed(drifter)
+    drifter = coordinates(drifter)
     drifter.to_csv(ODIR+b+'.csv')
 
 #%% WIIOS
@@ -126,8 +99,9 @@ for b,f in zip(buoy,file):
     drifter.rename(columns={'temperature/air':'temperature (degC)'},inplace=True)
     drifter['Unit_ID'] = b
     drifter = drift_speed(drifter)
+    drifter = coordinates(drifter)
     drifter.to_csv(ODIR+b+'.csv')
-#%% SAWS ISVP
+#%% SAWS ISVP (winter)
 latname=' LATITUDE'
 lonname=' LONGITUDE'
 timename='Data Date (UTC)'
@@ -148,9 +122,10 @@ for b,f in zip(buoy,file):
     drifter.rename(columns={' BP':'barometric_pressure (hPa)'},inplace=True)
     drifter['Unit_ID'] = b
     drifter = drift_speed(drifter.sort_index()) # NOTE index is reversed in raw
+    drifter = coordinates(drifter)
     drifter.to_csv(ODIR+b+'.csv')
 
-#%% SAWS ISVP
+#%% SAWS ISVP (spring)
 latname='latitude'
 lonname='longitude'
 timename='time'
@@ -170,4 +145,5 @@ for b,f in zip(buoy,file):
     drifter.rename(columns={'slp':'barometric_pressure (hPa)'},inplace=True)        
     drifter['Unit_ID'] = b
     drifter = drift_speed(drifter)
+    drifter = coordinates(drifter)
     drifter.to_csv(ODIR+b+'.csv')
