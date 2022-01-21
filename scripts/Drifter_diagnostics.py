@@ -33,7 +33,7 @@ drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
 # dates ticks
 DAY = 15
 # locate any special date range
-#drifter = drifter.loc['2017-08-05':]                
+drifter = drifter.loc['2017-08-05':]                
 
 #%% Read in the buoy drifter data 
 theBuoy = '2014S9'                                     
@@ -107,17 +107,26 @@ acc = speed.diff()/speed.index.to_series().diff().dt.total_seconds()
 acc_1D = acc.rolling('1D').mean()*1.e5 # daily running mean in m/s2*10^5
 
 #
-# To determine the dynamic regime of the drifter, calculate the scaling component (alpha)
+# To determine the dynamic regime of the drifter, 
+#     disp ~ T^alpha
+# calculate the scaling component (alpha) with nonlinear curve fitting
 # where: 
 # alpha > 1 - superdiffusive regime 
 # alpha = 1 - diffusive regime   
 # alpha < 1 - subdiffusive ("trapping") regime    
 # Within the superdiffusive category, αlpha = 2 corresponds to a ballistic regime indicative of
-# advection, α = 5/3 to an elliptic regime, and αlpha = 5/4 to a hyperbolic regime
-y = np.log(drifter['disp'].dropna())
-x = mdates.date2num(y.index)
-coeffs = np.polyfit(x,y, 1)
-
+# advection, α = 5/3 to an elliptic regime, and αlpha = 5/4 to a hyperbolic regime  
+ys = drifter['disp'].dropna()
+xs = mdates.date2num(ys.index)
+xs = xs - xs[0]
+from scipy.optimize import curve_fit
+def f(x, a):
+    return np.power(x,a)
+alpha, pcov = curve_fit(f, xs, ys.values)
+# plot the result to check
+plt.figure()
+plt.plot(xs,ys.values)
+plt.plot(xs,f(xs,alpha))
 #%% Plot the Velocity, Cumulative MC and Discrete MC
 
 def set_daterange(ax,byday=15):
