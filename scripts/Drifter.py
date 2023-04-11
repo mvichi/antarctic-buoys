@@ -172,6 +172,52 @@ def meander_coeff_discrete(drifter,freq='D'):
                                     label='right')).apply(meander_coeff)
     return mc
 
+def mc_day_mean(drifter, n=24):
+    ''' 
+    Meander coefficient adapted from Vihma et al. (1996) 
+    mc(t) = I(t)/delta_x(t)
+    where I is the total trajectory distance travelled by the drifter at time (t) 
+    and delta_x is geodesic distance of drifter at time (t) from origin.
+    
+    This method calculates the mc for each day for every index and then averages
+    over 24 hours. 
+    
+    Parameters
+    ----------
+    drifter : pandas DataFrame
+        The drifter DataFrame
+    n: number of indices in 1 day (default is 24)
+    Returns
+    -------
+    mc_mean: pandas Dataframe contaning the average meander coeffient for each day
+                The index is located on the first day (left) of the time interval.
+    '''
+    lats = drifter['latitude (deg)']
+    lons = drifter['longitude (deg)']
+    # displacement between reference point and 24 hours later
+    delta_x = [distance([lats[k], lons[k]], 
+                        [lats[k+n], lons[k+n]]).km for k in range(len(lats)-n)]
+    # distance along trajectory
+    DX = np.zeros(lats.size)
+    DY = np.zeros(lats.size)
+    for i in range(len(DX)-1):
+        DX[i+1]=distance((lats[i],lons[i]),(lats[i],lons[i+1])).kilometers
+        DY[i+1]=distance((lats[i],lons[i]),(lats[i+1],lons[i])).kilometers
+    drifter['dist_x (km)'] = DX
+    drifter['dist_y (km)'] = DY
+    drifter['dist (km)'] = np.sqrt(DX**2+DY**2)
+    dist = drifter['dist (km)']
+    # trajectory distance
+    # this cumulatively sums the drift distance within 24 hours (last column)
+    I = pd.DataFrame([dist[i:i+n].cumsum().tolist() for i in range(len(dist[:-n]))])[n-1] 
+    mc = pd.DataFrame(I/delta_x)
+    # add the drifters time to the dataframe
+    mc['time'] = drifter.index[0+n:]
+    mc.set_index('time',inplace=True)
+    # resample to daily time interval
+    mc_mean = mc.resample('D').mean()
+    return mc_mean
+
 #%% 
 def dispersion(drifter,cumulative=False,which='x'):
     '''
@@ -233,3 +279,4 @@ def dispersion_discrete(drifter,freq='D',which='x'):
                                     label='right')).apply(dispersion,which=which)
     return A2
 
+# end of code
