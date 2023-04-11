@@ -31,7 +31,7 @@ drifter = drifter.resample('4H').mean()
 t = drifter.index
 x = drifter.u[1:]                                       # zonal velocity
 y = drifter.v[1:]                                       # meridional velocity
-dt = 4   # change this                                  # sampling time interval of drifter in hours
+dt = 1   # change this                                  # sampling time interval of drifter in hours
 
 # FFT for zonal component
 NFFT = np.size(x)                                       # FFT length (radix 2 number!)
@@ -133,7 +133,7 @@ ax.grid(True, which='both')
 # frequency of 0.04 Hz which is approximately the daily frequency and allows 
 # the sub-daily frequencies to become more significant. 
 
-#dt = 4                                                     # sampling interval in hours
+#dt = 1                                                     # sampling interval in hours
 #Fs = 1/dt                                                  # sampling frequency (1/dt)
 b, a = signal.butter(12, 0.04, 'high', Fs)                  # 12th order with 0.04 h-1 cutoff frequency            
 w,h = signal.freqs(b,a)                                     # frequency response of a digital filter
