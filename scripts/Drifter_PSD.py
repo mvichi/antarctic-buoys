@@ -19,10 +19,10 @@ from scipy.signal import find_peaks
 from scipy.stats import chi2
 import matplotlib.ticker as ticker
 
-#%% First read in the velocity variables from Paper_1_diagnostics
+#%% First read in the velocity variables 
 # If the time interval of the data is irregular - resample the data to the best 
 # time interval so that a constant sampling frequncy can be applied for the FFT
-drifter = drifter.resample('4H').mean()
+drifter = drifter                                      # change name of drifter e.g. drifter_1
 
 #%% Apply a Fast Fourier Transform to change the domain of the signal from the original
 # (time or space domain) to a represenation in the frequency domain. This determines how 
