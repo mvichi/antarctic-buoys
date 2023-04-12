@@ -10,34 +10,40 @@ Wavelet Analysis of the Drifter
       decomposing a time series into a time-frequency space, it allows for the 
       determination of the dominant modes of variability, and how these modes vary
       in time. 
+
+First - compute the PSD (or filtered spectrum) of the drifter.
+      - Run Drifter_wavelet_functions.py script
 """
-# Before running this script -the Drifter_wavelet_functions.py script needs to be run
+
 #%%
 from matplotlib.gridspec import GridSpec
 import matplotlib.ticker as ticker
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.dates import DayLocator,HourLocator,DateFormatter
 from scipy.signal import find_peaks
+import matplotlib.dates as mdates
 from scipy.stats import chi2
 
-from waveletFunctions import wave_signif, wavelet
-
 #%% Use data from the power spectral analysis - read in either the unfiltered data
-# or the filtered data
+## or the filtered data
 
-t = drifter.index[1:]
-# x = U1_full.u[1:]                                                 # zonal velocity
-# y = U1_full.v[1:]                                                 # meridional velocity
-# var_x = np.std(x, ddof=1) ** 2                                    # varience (standard deiviation)
-# var_y = np.std(y, ddof=1) ** 2                                    # varience (standard deiviation)            
+#drifter = drifter_1
+#x = drifter['u (m/s)'][1:]                                         # zonal velocity
+#y = drifter['v (m/s)'][1:]                                         # meridional velocity
+#x = drifter['u10_E5 (m/s)'][1:]                                    # Speed
+#var_x = np.std(x, ddof=1) ** 2                                     # varience (standard deiviation)
+#var_y = np.std(y, ddof=1) ** 2                                     # varience (standard deiviation)            
 
+#%% if using the filtered spectrum from the PSD 
 # High-pass filter zonal and meridional velocities 
-x = x_filt                                                          # filtered zonal velocity
+t = drifter.index[1:]
+x = x_filt   # (or use filtered speed)                              # filtered zonal velocity (or filtered speed U)
 y = y_filt                                                          # filtered meridional velocity
 var_x = np.std(x, ddof=1) ** 2                                      # varience of x
 var_y = np.std(y, ddof=1) ** 2                                      # varience of y
 
 #%% Load the variables for the Wavelet transform
-dt = 4                                                              # sampling intervals in hours
+dt = 1                                                              # sampling intervals in hours
 NFFT = np.size(x)                                                   # FFT length
 pad = 1                                                             # pad the time series with zeroes (recommended)
 dj = 0.25                                                           # this will do 4 sub-octaves per octavet
@@ -66,45 +72,50 @@ signif_wt = wave_signif(var_x, dt=dt, scale=scale, sigtest=1,       # change to 
 # Repeat for the meridional component of the drifter - where it has been stated "change to y or var_y"
 
 #%% Plotting Wavelet Power Spectrum and Wavelet Spectrum
-mpl.rcParams['font.size'] = 25
-fig = plt.figure(figsize=(30, 20))
+mpl.rcParams['font.size'] = 30
+fig = plt.figure(figsize=(30, 23))
 gs = GridSpec(3, 4, wspace=0.025, hspace=0.05)
 plt.subplots_adjust(left=0.1, bottom=0.05, right=0.9, top=0.95, wspace=0, hspace=0)
 
 # Wave Power Spectrum
 plt1 = plt.subplot(gs[1, 0:3])
-CS = plt.contourf(t, period, power)                              
-plt.xlabel('Time')
+CS = plt.contourf(t, period, power, cmap=plt.cm.BuGn, vmin=0, vmax=3.2)                            
+plt.xlabel('Date')
 plt.ylabel('Period (hours)')
-plt.title('Wavelet Power Spectrum (U Component)', fontsize= 27)     # change to (V component)
+plt.title('Wavelet Power Spectrum', fontsize= 30)                   # change to (V component)
 plt.contour(t, period, sig95, [-99, 1], colors='k')                 # significance contour, levels at -99 (fake) and 1 (95% signif)            
-plt.plot(t[1:], coi[1:], 'r')                                       # cone-of-influence, anything "below" is dubious                            
-plt1.set_yscale('log', basey=2, subsy=None)
+plt.plot(t, coi[1:], 'r', linewidth=2.5)                            # cone-of-influence, anything "below" is dubious                            
+plt1.set_yscale('log', base=2, subs=None)
 plt1.xaxis.set_major_locator(DayLocator(interval=10))
-plt1.xaxis.set_major_formatter(DateFormatter('%m-%d'))
-plt.xticks(rotation=40)
-plt.ylim([np.min(period), np.max(period)])
+plt1.xaxis.set_major_formatter(DateFormatter('%d-%m'))
+plt.ylim([np.min(period[0]), np.max(period)])
 ax = plt.gca().yaxis
 ax.set_major_formatter(ticker.ScalarFormatter())
 plt1.ticklabel_format(axis='y', style='plain')
 plt1.invert_yaxis()
-plt.colorbar(CS)
+plt.colorbar()
+# if you need to specify colorbar limits
+#from matplotlib.cm import ScalarMappable
+#cb = plt.colorbar(ScalarMappable(norm=CS.norm,cmap=plt.cm.BuGn),
+#                  ticks=[0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2],
+#                  boundaries=np.arange(0, 3.6, 0.4))
 
 # Wavelet Spectrum
-mpl.rcParams['font.size'] = 25
+mpl.rcParams['font.size'] = 30
 plt2 = plt.subplot(gs[1, -1])
-plt.plot(wt_spectrum, period)                                       # wavelet power spectrum
-plt.plot(signif_wt, period, '--')                                   # wavelet significance level 
+plt.plot(wt_spectrum, period, linewidth=3, color='mediumseagreen')   # wavelet power spectrum
+plt.plot(signif_wt, period, '--', linewidth=3, color='black')        # wavelet significance level 
 plt.xlabel('Power (variance)')
-plt.title('Wavelet Spectrum (U Component)', fontsize= 27)           # change to (V component)
+plt.title('Wavelet Spectrum', fontsize= 30)                          # change to (V component)
 plt.xlim([0, 1.25 * np.max(wt_spectrum)])
-plt2.set_yscale('log', basey=2, subsy=None)
-plt.ylim([np.min(period), np.max(period)])
+plt2.set_yscale('log', base=2, subs=None)
+plt.ylim([np.min(period[0]), np.max(period)])
+plt.xlim(0,1.5)
 ax = plt.gca().yaxis
 ax.set_major_formatter(ticker.ScalarFormatter())
 ax.set_major_formatter(plt.NullFormatter())
 plt2.invert_yaxis()
 
-# Re-run using y and var_y (and change the title of each plot)
+fig.tight_layout()
 
 # end of code
