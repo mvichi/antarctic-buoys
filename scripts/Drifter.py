@@ -172,7 +172,7 @@ def meander_coeff_discrete(drifter,freq='D'):
                                     label='right')).apply(meander_coeff)
     return mc
 
-def mc_day_mean(drifter, n=24):
+def meander_coeff_mean(drifter, n=24):
     ''' 
     Meander coefficient adapted from Vihma et al. (1996) 
     mc(t) = I(t)/delta_x(t)
@@ -186,7 +186,7 @@ def mc_day_mean(drifter, n=24):
     ----------
     drifter : pandas DataFrame
         The drifter DataFrame
-    n: number of indices in 1 day (default is 24)
+    n: number of indices in 1 day (default is 24 - 24 hours per day)
     Returns
     -------
     mc_mean: pandas Dataframe contaning the average meander coeffient for each day
@@ -215,11 +215,11 @@ def mc_day_mean(drifter, n=24):
     mc['time'] = drifter.index[0+n:]
     mc.set_index('time',inplace=True)
     # resample to daily time interval
-    mc_mean = mc.resample('D').mean()
-    return mc_mean
+    mc_1D_mean = mc.resample('D').mean()
+    return mc_1D_mean
 
 #%% 
-def dispersion(drifter,cumulative=False,which='x'):
+def abs_dispersion(drifter,cumulative=False,which='x'):
     '''
     Single particle dispersion - 
     adapted from Taylor (1921) and Lukovich et al. (2017, 2021)
@@ -276,7 +276,7 @@ def dispersion_discrete(drifter,freq='D',which='x'):
 
     '''
     A2 = drifter.groupby(pd.Grouper(freq=freq,
-                                    label='right')).apply(dispersion,which=which)
+                                    label='right')).apply(abs_dispersion,which=which)
     return A2
 
 # end of code
