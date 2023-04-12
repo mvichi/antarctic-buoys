@@ -77,9 +77,13 @@ end = drifter.index.max()
 # cbar.ax.set_yticklabels(pd.to_datetime(cbar.get_ticks()).strftime(date_format='%Y-%m-%d'))
 
 # Compute the meander coefficients
-mc_cum = meander_coeff(drifter,cumulative=True)
+mc_cum = meander_coeff(drifter, cumulative=True)
 mc_1D = meander_coeff_discrete(drifter)
 mc_5D = meander_coeff_discrete(drifter,freq='5D')
+# the following method computes the daily averaged one per day 
+# n is the number of indicies per day - if hourly then n=24 or 4-hourly then n=6. 
+mc_1D_mean = meander_coeff_mean(drifter, n=24)
+
 
 # f,ax = plt.subplots()
 # mc_cum.plot(label='cumulative')
@@ -88,18 +92,19 @@ mc_5D = meander_coeff_discrete(drifter,freq='5D')
 # ax.set_ylabel('Meander coefficient')
 # plt.legend()
 
-# Compute cumulative dispersion
-abs_disp_x = dispersion(drifter,cumulative=True,which='x')
-abs_disp_y = dispersion(drifter,cumulative=True,which='y')
+# Compute cumulative dispersion - this is for 1 single buoy
+abs_disp_x = abs_dispersion(drifter,cumulative=True,which='x')
+abs_disp_y = abs_dispersion(drifter,cumulative=True,which='y')
 drifter['disp'] = abs_disp_x+abs_disp_y
 drifter['disp_x'] = abs_disp_x
 drifter['disp_y'] = abs_disp_y
 
+
 # Compute discrete dispersion
-A2_1D_x = dispersion_discrete(drifter,freq='1D',which='x')
-A2_1D_y = dispersion_discrete(drifter,freq='1D',which='y')
-A2_5D_x = dispersion_discrete(drifter,freq='5D',which='x')
-A2_5D_y = dispersion_discrete(drifter,freq='5D',which='y')
+A2_1D_x = abs_dispersion_discrete(drifter,freq='1D',which='x')
+A2_1D_y = abs_dispersion_discrete(drifter,freq='1D',which='y')
+A2_5D_x = abs_dispersion_discrete(drifter,freq='5D',which='x')
+A2_5D_y = abs_dispersion_discrete(drifter,freq='5D',which='y')
 
 # Compute numerical acceleration (first-order forward)
 speed = drifter['U (m/s)']
@@ -194,6 +199,8 @@ ax_MC.plot(mc_5D.index, mc_5D, linewidth=2, color='green',
            marker='|', label='Discrete (5D)')
 ax_MC.plot(mc_1D.index, mc_1D, linewidth=2, color='lightblue', 
            marker='|', label='Discrete (1D)')
+ax_MC.plot(mc_1D_mean.index, mc_1D_mean, linewidth=2, color='orange', 
+           marker='|', label='Daily Averaged Discrete')
 ax_MC.set_ylabel('Meander Coefficient')
 set_daterange(ax_MC,byday=DAY)
 ax_MC.text(-0.13, 1,'(d)', transform=ax_MC.transAxes,
