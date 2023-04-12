@@ -258,7 +258,7 @@ plt.tight_layout()
 # Read in the ERA5 data- atmospheric reanalysis  
 era5_dir = '.../data/'
 # ERA5 file for 2019
-e5_fil = xr.open_dataset(era5_dir+"/.nc")
+e5_file = xr.open_dataset(era5_dir+"/.nc")
 #   Extract the ERA5 atmospheric data at drifter location
 drifter = e5_variables(drifter, e5_file)
 
