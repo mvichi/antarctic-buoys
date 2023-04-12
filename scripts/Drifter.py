@@ -260,7 +260,7 @@ def abs_dispersion(drifter,cumulative=False,which='x'):
             var_x = var_x[-1]
     return var_x
 
-def dispersion_discrete(drifter,freq='D',which='x'):
+def abs_dispersion_discrete(drifter,freq='D',which='x'):
     '''
     Parameters
     ----------
