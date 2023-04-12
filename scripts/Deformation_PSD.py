@@ -12,7 +12,7 @@ Power Spectral Analysis of the Deformation rate of the cluster
       Glover, D.M., Jenkins, W.J. and Doney, S.C., 2011. Modeling methods for marine science. 
       Cambridge University Press.
 
-First - Run compute the relative dispersion of the cluster.
+First - Run compute the relative_dispersion.py of the cluster to use the deformation proxy.
 
 """
 from scipy import signal
