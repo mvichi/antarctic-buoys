@@ -28,6 +28,17 @@ import seaborn as sns
 BDIR = '../data/' # directory of the drifter data
 
 #%% Read in the buoy drifter data 
+theBuoy = 'ISVP1'                                     
+drifter = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True)
+# dates ticks
+DAY = 10
+# locate any special date range
+drifter = drifter.loc['2019-07-27':'2019-10-05 12:00:00']
+drifter_1 = drifter_1.resample('1H').mean()                   # from 30 minutes 
+drifter_1 = drifter_1.fillna(method='ffill')
+drifter_1 = drifter_1[1:]                                     # start from 01:00 
+
+#%% Read in the buoy drifter data 
 theBuoy = 'Trident_U1'                                     
 drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
 # dates ticks
