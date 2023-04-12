@@ -143,6 +143,21 @@ alpha, pcov = curve_fit(f, xs, ys.values)
 plt.figure()
 plt.plot(xs,ys.values)
 plt.plot(xs,f(xs,alpha))
+
+#%% Read in the ERA5 data- atmospheric reanalysis
+#   First download Era5 wind data (u,v), 2-m air temperature, mslp
+#   for the same period as the drifter of interest.
+era5_dir = '.../data/'
+# ERA5 file for 2019
+e5_fil = xr.open_dataset(era5_dir+"/.nc")
+#   Extract the ERA5 atmospheric data at drifter location
+drifter = e5_variables(drifter, e5_file)
+
+# compute the kinematic parameters
+theta, theta_degs, WF, R2v, R2p = drift_response(drifter)    
+# using the WF and theta, compute the estimate currents speed.
+Cuv, C = current_estimation(drifter,theta, WF)
+
 #%% Plot the Velocity, Cumulative MC and Discrete MC
 
 def set_daterange(ax,byday=15):
