@@ -30,7 +30,7 @@ from scipy.stats import chi2
 #drifter = drifter_1
 #x = drifter['u (m/s)'][1:]                                         # zonal velocity
 #y = drifter['v (m/s)'][1:]                                         # meridional velocity
-#x = drifter['u10_E5 (m/s)'][1:]                                    # Speed
+#x = drifter['U (m/s)'][1:]                                         # Speed
 #var_x = np.std(x, ddof=1) ** 2                                     # varience (standard deiviation)
 #var_y = np.std(y, ddof=1) ** 2                                     # varience (standard deiviation)            
 
