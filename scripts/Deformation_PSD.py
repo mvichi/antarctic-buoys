@@ -12,6 +12,8 @@ Power Spectral Analysis of the Deformation rate of the Winter cluster
       Glover, D.M., Jenkins, W.J. and Doney, S.C., 2011. Modeling methods for marine science. 
       Cambridge University Press.
 
+First - Run compute the relative dispersion of the cluster.
+
 """
 from scipy import signal
 from scipy.signal import find_peaks
@@ -19,17 +21,16 @@ from scipy.stats import chi2
 import matplotlib.ticker as ticker
 
 #%% First read in the deformation rate variables from spring_rel_disp.py
-d_rateS1 = stdDr_W9                                     
+d_rate = stdDr                                   
 
 #%% Apply a Fast Fourier Transform to change the domain of the signal from the original
 # (time or space domain) to a represenation in the frequency domain. This determines how 
 # much variance (power) is contained in the freuqncy bands, which can be associated with 
 # external forcing mechanims (e.g. wind forcing).
-t = d_rateS1.index
-x = d_rateS1['std_D'][1:]                              # cluster std_D
+t = d_rate.index
+x = d_rate['std_D'][1:]                                # cluster std_D
 dt = 1                                                 # sampling time interval of drifter in hours
 
-# small cluster std_D
 NFFT = np.size(x)                                      # FFT length (radix 2 number!)
 m    = NFFT/2                                          # number of distinct frequency bins
 fc   = 1/(2*dt)                                        # the critical frequency
@@ -52,7 +53,7 @@ def invert(f):
     return (1/f) 
 
 ax.loglog(f[1:int(m)],Pxx[1:int(m)], linewidth=2.5, 
-            color='royalblue', label='L0 = 50-120 km')   
+            color='royalblue')   
 ax.set_xlabel('Frequency (h$^{-1}$)')
 ax.set_ylabel('Power (m$^{2}$ s$^{-2}$)')
 # set the period (1/f) to be the secondary xaxis
@@ -79,7 +80,7 @@ freqs_x, psd_x = signal.welch(x,fs=Fs, window='hann',scaling='density',
 #%% Plot Frequency vs PSD
 mpl.rcParams['font.size'] = 35
 fig, ax = plt.subplots(figsize=(25,12))
-ax.loglog(freqs_x,psd_x, linewidth=3, color='green', label='L0 = 50-120 km')
+ax.loglog(freqs_x,psd_x, linewidth=3, color='green')
 ax.set_xlabel('Frequency (h⁻¹)')
 ax.set_ylabel('PSD (m² s⁻² h⁻¹)')
 ax.tick_params(which='major', length=10)
@@ -102,9 +103,6 @@ xc = 1/periodx[12]                                     # change no. for line at 
 #ax.axvline(x=xc, color='red', linewidth=3)
 ax.set_ylim(1e-7, 1e0)
 ax.grid(True, which='both')
-ax.set_title('2019 - Winter σ$_\dot{D}$')
-#args=dict(xy=(0.004,0.95),xycoords='axes fraction',fontsize=34)
-#ax.annotate(text='(a)',**args)
-#plt.savefig('winter_drate_PSD.tiff', format='tiff', dpi=300)
+ax.set_title('PSD σ$_\dot{D}$')
 
 # end of code
