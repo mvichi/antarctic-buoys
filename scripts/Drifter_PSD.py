@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 """
 Created on Wed Dec  1 12:09:18 2021
 
@@ -12,57 +13,61 @@ Power Spectral Analysis of the Drifter Velocity
       Glover, D.M., Jenkins, W.J. and Doney, S.C., 2011. Modeling methods for marine science. 
       Cambridge University Press.
 
+First compute the drifter diagnotics.
+
 """
-#%% 
 from scipy import signal
 from scipy.signal import find_peaks
 from scipy.stats import chi2
 import matplotlib.ticker as ticker
 
 #%% First read in the velocity variables 
-# If the time interval of the data is irregular - resample the data to the best 
-# time interval so that a constant sampling frequncy can be applied for the FFT
-drifter = drifter                                      # change name of drifter e.g. drifter_1
-
-#%% Apply a Fast Fourier Transform to change the domain of the signal from the original
-# (time or space domain) to a represenation in the frequency domain. This determines how 
-# much variance (power) is contained in the freuqncy bands, which can be associated with 
-# external forcing mechanims (e.g. wind forcing).
+#   If the time interval of the data is irregular - resample the data to the best 
+#   time interval so that a constant sampling frequncy can be applied for the FFT
+      
 t = drifter.index
-x = drifter.u[1:]                                       # zonal velocity
-y = drifter.v[1:]                                       # meridional velocity
-dt = 1   # change this                                  # sampling time interval of drifter in hours
+x = drifter['u (m/s)'][1:]                                       # zonal velocity
+y = drifter['v (m/s)'][1:]                                       # meridional velocity
+dt = 1   # change this                                           # sampling time interval of drifter in hours
+
+# Era5 wind u and v components
+xE5 = drifter['u10_E5 (m/s)'][1:]                                # Era5 zonal velocity
+yE5 = drifter['v10_E5 (m/s)'][1:]                                # Era5 meridional velocity
+#%% Apply a Fast Fourier Transform to change the domain of the signal from the original
+#   (time or space domain) to a represenation in the frequency domain. This determines how 
+#   much variance (power) is contained in the freuqncy bands, which can be associated with 
+#   external forcing mechanims (e.g. wind forcing).
 
 # FFT for zonal component
-NFFT = np.size(x)                                       # FFT length (radix 2 number!)
-m = NFFT/2                                              # number of distinct frequency bins
-fc = 1/(2*dt)                                           # the critical frequency
-f = fc*np.arange(0,int(m)+1)/m                          # the frequency bins (NFFT/2 +1 bins)
-X = np.fft.fft(x,NFFT)                                  # FFT of the length NFFT
+NFFT = np.size(x)                                                # FFT length (radix 2 number!)
+m    = NFFT/2                                                    # number of distinct frequency bins
+fc   = 1/(2*dt)                                                  # the critical frequency
+f    = fc*np.arange(0,int(m)+1)/m                                # the frequency bins (NFFT/2 +1 bins)
+X    = np.fft.fft(x,NFFT)                                        # FFT of the length NFFT
 
-Pxx = np.zeros(np.size(x))
+Pxx  = np.zeros(np.size(x))
 for j in range(len(X)):
-    Pxx[j] = abs(X[j]*np.conj(X[j]))/NFFT               # periodogram = |X|^2       
-Pxx = Pxx[0:int(m)+1]                                   # from 0:m+1 
-Pxx=np.append(Pxx[0],Pxx[1:int(m)+1]*2)                 # from 1:m+1 
-print((x**2).sum())                                     # Parseval's theorem -total power computed in time domain
-print(Pxx.sum())                                        # must be equal to total power computed in frequency domain
+    Pxx[j] = abs(X[j]*np.conj(X[j]))/NFFT                        # periodogram = |X|^2       
+Pxx  = Pxx[0:int(m)+1]                                           # from 0:m+1 
+Pxx  = np.append(Pxx[0],Pxx[1:int(m)+1]*2)                       # from 1:m+1 
+print((x**2).sum())                                              # Parseval's theorem -total power computed in time domain
+print(Pxx.sum())                                                 # must be equal to total power computed in frequency domain
  
 # FFT for meridional component
-NFFT = np.size(y)                                       # FFT length 
-m = NFFT/2                                              # number of discrete frequency bins
-fc = 1/(2*dt)                                           # the critical frequency
-f = fc*np.arange(0,int(m)+1)/m                          # the frequency bins (NFFT/2 +1 bins)
-Y = np.fft.fft(y,NFFT)                                  # FFT of the length NFFT
+NFFT = np.size(y)                                                # FFT length 
+m    = NFFT/2                                                    # number of discrete frequency bins
+fc   = 1/(2*dt)                                                  # the critical frequency
+f    = fc*np.arange(0,int(m)+1)/m                                # the frequency bins (NFFT/2 +1 bins)
+Y    = np.fft.fft(y,NFFT)                                        # FFT of the length NFFT
 
-Pyy = np.zeros(np.size(y))
+Pyy  = np.zeros(np.size(y))
 for j in range(len(Y)):
-    Pyy[j] = abs(Y[j]*np.conj(Y[j]))/NFFT               # periodogram = |X|^2   
-Pyy = Pyy[0:int(m)+1]                                   # from 0:m+1 
-Pyy=np.append(Pyy[0],Pyy[1:int(m)+1]*2)                 # from 1:m+1 
-print((y**2).sum())                                     # Parseval's theorem -total power computed in time domain
-print(Pyy.sum())                                        # must be equal to total power computed in frequency domain
-
+    Pyy[j] = abs(Y[j]*np.conj(Y[j]))/NFFT                        # periodogram = |X|^2   
+Pyy  = Pyy[0:int(m)+1]                                           # from 0:m+1 
+Pyy  = np.append(Pyy[0],Pyy[1:int(m)+1]*2)                       # from 1:m+1 
+print((y**2).sum())                                              # Parseval's theorem -total power computed in time domain
+print(Pyy.sum())                                                 # must be equal to total power computed in frequency domain
+ 
 f_linear = 10**f    
 def invert(f):
     return (1/f)  
@@ -71,25 +76,20 @@ def invert(f):
 mpl.rcParams['font.size'] = 25
 fig, ax = plt.subplots(figsize=(20,10))
    
-# Zonal component
-freqs = np.fft.fftfreq(len(x))                          # find the frequency peaks 
-peaks,freqs = find_peaks(Pxx, height=None,threshold=0.005)
-np.diff(peaks)
-period = 1/f[peaks]    
-
-# Meridional component
-freqs_y = np.fft.fftfreq(len(y))                        # find the frequency peaks 
-peaks_y,freqs_y = find_peaks(Pyy, height=None,threshold=0.005)
-np.diff(peaks_y)
-period_y = 1/f[peaks_y]
+def invert(f):
+    return (1/f) 
 
 ax.loglog(f[1:int(m)],Pxx[1:int(m)], linewidth=2.5, color='royalblue', label='zonal')   
 ax.loglog(f[1:int(m)],Pyy[1:int(m)], linewidth=2.5, color='orange', label='meridional') 
 ax.set_xlabel('Frequency (h$^{-1}$)')
-ax.set_ylabel('Power (m$^{2}$ s$^{-2}$)') 
-secax = ax.secondary_xaxis('top',functions=(invert, invert))
-secax.set_xscale('linear')
-secax.set_xlabel('Period (hours)')
+ax.set_ylabel('Power (m$^{2}$ s$^{-2}$)')
+# set the period (1/f) to be the secondary xaxis
+ax2 = ax.twiny() 
+ax2.loglog(1/f[1:int(m)],Pxx[1:int(m)], color='royalblue', linewidth=0.1)
+ax2.invert_xaxis()
+ax2.set_xscale(value='log')
+ax2.set_xlabel('Period (hours)')
+ax2.xaxis.set_major_formatter(ticker.FuncFormatter(lambda y, _: '{:g}'.format(y)))
 ax.grid(True, which='both')
 ax.legend()
 
@@ -100,45 +100,83 @@ ax.legend()
 
 Fs = 1/dt                                                    # sampling frequency (1/dt)
 # Zonal component
-freqs, psd = signal.welch(x,fs=Fs, window='hann',scaling='density', 
+freqs_x, psd_x = signal.welch(x,fs=Fs, window='hann',scaling='density', 
                           nperseg=256, noverlap=0)           # extracting frequencies and psd of signal
+freqs_xE5, psd_xE5 = signal.welch(xE5,fs=Fs, window='hann',scaling='density', 
+                          nperseg=256, noverlap=0)           
 
 # Meridional component
 freqs_y, psd_y = signal.welch(y,fs=Fs, window='hann',scaling='density', 
-                          nperseg=256, noverlap=0)           # extracting frequencies and psd of signal
+                          nperseg=256, noverlap=0)           
+freqs_yE5, psd_yE5 = signal.welch(yE5,fs=Fs, window='hann',scaling='density', 
+                          nperseg=256, noverlap=0)           
+
 
 #%% Plot Frequency vs PSD
-mpl.rcParams['font.size'] = 25
-fig, ax = plt.subplots(figsize=(20,10))
-ax.loglog(freqs,psd, linewidth=2.5, color='royalblue', label='zonal')
+mpl.rcParams['font.size'] = 35
+fig, ax = plt.subplots(figsize=(25,12))
+ax.loglog(freqs_x,psd_x, linewidth=2.5, color='royalblue', label='zonal')
 ax.loglog(freqs_y,psd_y, linewidth=2.5, color='orange', label='meridional')
+ax.loglog(freqs_xE5,psd_xE5, linewidth=2.5, color='blue', label='ERA5 zonal')
+ax.loglog(freqs_yE5,psd_yE5, linewidth=2.5, color='orangered', label='EAR5 meridional')
 ax.set_xlabel('Frequency (h⁻¹)')
 ax.set_ylabel('PSD (m² s⁻² h⁻¹)')
+ax.tick_params(which='major', length=10)
+ax.tick_params(which='minor', length=4)
+ax.legend(loc=3, fontsize=30)
 
-secax = ax.secondary_xaxis('top',functions=(invert, invert))
-secax.set_xscale(value='linear')
-secax.set_xlabel('Period (hours)')
-secax.grid()
-ax.legend(loc=3)
+# Calculate and the plot the 95% confidence intervals of the PSD
+probability = 0.95 
+alfa = 1 - probability
+# P is the number of estimates in welch function and 
+# also the degree of freedom (256).
+P = 256
+v = 2 * P 
+ci = chi2.ppf([1 - alfa/2, alfa/2], v)
+ci = v / ci
+# drifter confidence
+Pxxc_lower_x = psd_x * ci[0]
+Pxxc_upper_x = psd_x * ci[1]
+Pxxc_lower_y = psd_y * ci[0]
+Pxxc_upper_y = psd_y * ci[1]
+plt.fill_between(freqs_x, Pxxc_lower_x, Pxxc_upper_x, color = 'lightblue')
+plt.fill_between(freqs_y, Pxxc_lower_y, Pxxc_upper_y, color = 'navajowhite')
+# era5 confidence
+Pxxc_lower_xE5 = psd_xE5 * ci[0]
+Pxxc_upper_xE5 = psd_xE5 * ci[1]
+Pxxc_lower_yE5 = psd_yE5 * ci[0]
+Pxxc_upper_yE5 = psd_yE5 * ci[1]
+plt.fill_between(freqs_xE5, Pxxc_lower_xE5, Pxxc_upper_xE5, color = 'cornflowerblue')
+plt.fill_between(freqs_yE5, Pxxc_lower_yE5, Pxxc_upper_yE5, color = 'lightsalmon')
 
-peaks,freq = find_peaks(psd, height=None,threshold=0.0005)
+# set the period (1/f) to be the secondary xaxis
+ax2 = ax.twiny() 
+ax2.loglog(1/freqs_x,psd_x, color='royalblue', linewidth=0.0001)
+ax2.invert_xaxis()
+ax2.set_xscale(value='log')
+ax2.set_xlabel('Period (hours)')
+ax2.xaxis.set_major_formatter(ticker.FuncFormatter(lambda y, _: '{:g}'.format(y)))
+
+
+peaks,freqs_peak = find_peaks(psd_x, height=None,threshold=0.0005)
 np.diff(peaks)
-period = 1/freqs[peaks]
-xc = 1/period[12]                                             # change no. for line at inertial period
-plt.axvline(x=xc, color='red', linewidth=2.5)
+period = 1/freqs_x[peaks]                                    # psd freq and peaks
+xc = 1/period[12]                                            # change no. for line at inertial period
+ax.axvline(x=xc, color='black', linewidth=3)
 ax.grid(True, which='both')
+args=dict(xy=(0.004,0.95),xycoords='axes fraction',fontsize=34)
 
-#%% Application of Butterworth High-Pass Filter 
-# This is a 12th order filter used to remove all frequencies below the cutoff
-# frequency of 0.04 Hz which is approximately the daily frequency and allows 
-# the sub-daily frequencies to become more significant. 
-
-#dt = 1                                                     # sampling interval in hours
-#Fs = 1/dt                                                  # sampling frequency (1/dt)
+#%%
+'''
+Application of a Butterworth High-Pass Filter 
+This is a 12th order filter used to remove all frequencies below the cutoff
+frequency of 0.04 Hz which is approximately the daily frequency, allowing 
+the sub-daily frequencies to become more significant. 
+'''
 b, a = signal.butter(12, 0.04, 'high', Fs)                  # 12th order with 0.04 h-1 cutoff frequency            
 w,h = signal.freqs(b,a)                                     # frequency response of a digital filter
-x_filt = signal.filtfilt(b,a,drifter.u[1:], padtype=None)   # filter data series
-y_filt = signal.filtfilt(b,a,drifter.v[1:], padtype=None)   # filter data series
+x_filt = signal.filtfilt(b,a,drifter['u (m/s)'][1:], padtype=None)   # filter data series
+y_filt = signal.filtfilt(b,a,drifter['v (m/s)'][1:], padtype=None)   # filter data series
 
 #%% Apply a Fast Fourier Transform to filtered data series
 # FFT for x_filt (zonal component)
@@ -173,23 +211,62 @@ print((y_filt**2).sum())                                    # Parseval's theorem
 print(Pyy_filt.sum())                                       # must be equal to total power computed in frequency domain
 freqs_filt = np.fft.fftfreq(len(y_filt))
 
+#%% Plot of Frequency vs Power of the filtered spectrum
+mpl.rcParams['font.size'] = 25
+fig, ax = plt.subplots(figsize=(20,10))
+   
+ax.loglog(f[1:int(m)],Pxx_filt[1:int(m)], linewidth=2.5, color='royalblue', 
+            label='zonal filtered')   
+ax.loglog(f[1:int(m)],Pyy_filt[1:int(m)], linewidth=2.5, color='orange', 
+            label='meridional filtered') 
+ax.set_xlabel('Frequency (h$^{-1}$)')
+ax.set_ylabel('Power (m$^{2}$ s$^{-2}$)') 
+secax = ax.secondary_xaxis('top',functions=(invert, invert))
+secax.set_xscale('linear')
+secax.set_xlabel('Period (hours)')
+ax.grid(True, which='both')
+ax.legend()
+
 #%% Determine the PSD of filtered data series
 # Zonal component
-freqs_filt, psd_filt = signal.welch(x_filt,fs=Fs, window='hann',scaling='density', 
+freqs_filt_x, psd_filt_x = signal.welch(x_filt,fs=Fs, window='hann',scaling='density', 
                           nperseg=256, noverlap=0) 
 # Meridional component
 freqs_filt_y, psd_filt_y = signal.welch(y_filt,fs=Fs, window='hann',scaling='density', 
                           nperseg=256, noverlap=0) 
 
+#%% Plot Frequency vs PSD of filtered spectrum
+mpl.rcParams['font.size'] = 25
+fig, ax = plt.subplots(figsize=(20,10))
+ax.loglog(freqs_filt_x, psd_filt_x, linewidth=2.5, color='royalblue', 
+          label='zonal filtered')
+ax.loglog(freqs_filt_y, psd_filt_y, linewidth=2.5, color='orange',
+          label='meridional filtered')
+ax.set_xlabel('Frequency (h⁻¹)')
+ax.set_ylabel('PSD (m² s⁻² h⁻¹)')
+
+secax = ax.secondary_xaxis('top',functions=(invert, invert))
+secax.set_xscale(value='linear')
+secax.set_xlabel('Period (hours)')
+secax.grid()
+ax.legend(loc=3)
+
+peaks,freqs_peak = find_peaks(psd_x, height=None,threshold=0.0005)
+np.diff(peaks)
+period = 1/freqs_x[peaks]                                       # psd freq and peaks
+xc = 1/period[1]                                                # change no. for line at inertial period
+#plt.axvline(x=xc, color='red', linewidth=2.5)
+ax.grid(True, which='both')
+
 #%% Linear PSD vs with High-Pass Filter
 mpl.rcParams['font.size'] = 25
 fig, ax = plt.subplots(figsize=(20,10))
-ax.plot(freqs,psd, linewidth=3, label='normal')             # this just for the U component
-ax.plot(freqs_filt,psd_filt, linewidth=3, label='filtered')
+ax.plot(freqs_x,psd_x, linewidth=3, label='normal')             # this just for the U component
+ax.plot(freqs_filt_x,psd_filt_x, linewidth=3, label='filtered')
 plt.plot(w,abs(h), color='magenta', label='frequency filter response')
 plt.xlim(0,0.25)
 ax.set_xlabel('Frequency (h⁻¹)')
-ax.axis([0, 0.13, 0, 6])
+ax.axis([0, 0.13, 0, 9])
 ax.set_ylabel('PSD (m² s⁻² h⁻¹)')
 plt.legend()
 
