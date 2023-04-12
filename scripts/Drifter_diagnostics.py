@@ -10,7 +10,9 @@ Overview of the main diagnostics of sea-ice drift
       - Meander Coefficient (MC)
           1. Cumulative Method
           2. Discrete Method
+          3. Daily-averaged Discrete Method
       - Absolute (Single-Particle) Dispersion
+      - Drift response to atmospheric forcing
       
 @author: Ashleigh Womack, Marcello Vichi
 """
