@@ -24,9 +24,7 @@ BDIR = '../data/' # directory of the drifter data drifter data
 
 #%% Read in the buoy drifter data 
 theBuoy = 'ISVP1'                                     
-drifter_1 = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True)
-# locate any special date range
-drifter_1 = drifter_1.loc['2019-07-27':'2019-10-05 12:00:00']  
+drifter_1 = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True) 
 
 # due to the confusion of north to south -> the buoy names are switched
 theBuoy = 'ISVP3'                                     
@@ -35,7 +33,6 @@ drifter_2 = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True)
 # due to the confusion from north to south -> the buoy names are switched
 theBuoy = 'ISVP2'                                     
 drifter_3 = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True)
-drifter_3 = drifter_3.loc[:'2019-10-05 12:00:00']
    
 #%% Manually resample the data for the cluster dates for every hour
 #   or to the same time interval.
