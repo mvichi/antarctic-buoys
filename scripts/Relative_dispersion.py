@@ -38,7 +38,8 @@ drifter_3 = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True)
 
 
 #%% Manually resample the data for the cluster dates
-# for every hour
+#   for every hour or any regular time interval. 
+#   - Note this will change the number of indicies in a day. 
 time = pd.date_range(start="2019-07-28 05:00:00", 
                          end="2019-08-25 03:00:00", freq="1H")
 
