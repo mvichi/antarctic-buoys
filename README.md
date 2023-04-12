@@ -1,7 +1,7 @@
 # antarctic-buoys
 # Introduction
 This is a collection of scripts to process drifter data from the Antarctic marginal ice zone in the Atlantic and Indian sectors.
-These scripts compute the drift diagnostics, drift response to atmospheric forcing, spectral analysis and wavelet analysis of drift velocity, absolute and relative dispersion statisctics, PSD of deformation proxy. 
+These scripts compute the drift diagnostics, drift response to atmospheric forcing, spectral analysis and wavelet analysis of drift velocity, absolute and relative dispersion statisctics, and the PSD of the deformation proxy. 
 
 Atmospheric data will need to be separtely downloaded from Era5 reanalysis (hourly on single levels from 1940 to present). 
 
