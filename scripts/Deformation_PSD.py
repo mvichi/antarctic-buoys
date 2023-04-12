@@ -5,7 +5,7 @@ Created on Wed Dec  1 12:09:18 2021
 
 @author: Ashleigh Womack
 
-Power Spectral Analysis of the Deformation rate of the Winter cluster
+Power Spectral Analysis of the Deformation rate of the cluster
     - Power spectrum of a time series decribes the distribution of power with respect
       to the frequency contained in the analysed signal.
     - Adapted from the book: Modelling Methods for Marine Sciences 
@@ -20,7 +20,7 @@ from scipy.signal import find_peaks
 from scipy.stats import chi2
 import matplotlib.ticker as ticker
 
-#%% First read in the deformation rate variables from spring_rel_disp.py
+#%% 
 d_rate = stdDr                                   
 
 #%% Apply a Fast Fourier Transform to change the domain of the signal from the original
