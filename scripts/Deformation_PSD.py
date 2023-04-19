@@ -102,7 +102,8 @@ periodx = 1/freqs_x[peaksx]                            # psd freq and peaks
 xc = 1/periodx[12]                                     # change no. for line at inertial period
 #ax.axvline(x=xc, color='red', linewidth=3)
 ax.set_ylim(1e-7, 1e0)
-ax.grid(True, which='both')
+ax2.grid(True, which='both')
+ax.yaxis.grid(which='both')
 ax.set_title('PSD σ$_\dot{D}$')
 
 # end of code
