@@ -163,7 +163,8 @@ np.diff(peaks)
 period = 1/freqs_x[peaks]                                    # psd freq and peaks
 xc = 1/period[12]                                            # change no. for line at inertial period
 ax.axvline(x=xc, color='black', linewidth=3)
-ax.grid(True, which='both')
+ax2.grid(True, which='both')
+ax.yaxis.grid(which='both')
 args=dict(xy=(0.004,0.95),xycoords='axes fraction',fontsize=34)
 
 #%%
