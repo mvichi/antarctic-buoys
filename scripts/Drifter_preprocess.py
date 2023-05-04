@@ -98,18 +98,23 @@ for b,f in zip(buoy,file):
     drifter.drop(timename, axis=1, inplace=True)
     drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
     drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
-    drifter.rename(columns={'temperature/air':'temperature (degC)'},inplace=True)
+    drifter.rename(columns={'temperature/air':'air temperature (degC)'},inplace=True)
     drifter['Unit_ID'] = b
     drifter = drift_speed(drifter)
     drifter = coordinates(drifter)
     drifter.to_csv(ODIR+b+'.csv')
     
 #%% SAWS ISVP (winter)
+# These data contain missing timestamps.
+# N.B. 
+# The buoys have been renamed to match their sequence of deployment. 
+# In the cruise report (Ryan-Keogh and Vichi, 2020) ISVP2 and ISVP3 are swapped
+# ISVP2 was ID 300234066992870 and it is now 300234067002060
 latname=' LATITUDE'
 lonname=' LONGITUDE'
 timename='Data Date (UTC)'
 
-buoy = ['ISVP1','ISVP2','ISVP3']
+buoy = ['ISVP1_30min','ISVP3','ISVP2']
 file = ['300234067003010-300234067003010-20191015T064320UTC.csv',
         '300234066992870-300234066992870-20191015T064314UTC.csv',
         '300234067002060-300234067002060-20191015T064316UTC.csv']
@@ -122,13 +127,35 @@ for b,f in zip(buoy,file):
     drifter.drop(timename, axis=1, inplace=True)
     drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
     drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
-    drifter.rename(columns={' SST':'temperature (degC)'},inplace=True)
+    drifter.rename(columns={' SST':'surf temperature (degC)'},inplace=True)
     drifter.rename(columns={' BP':'barometric_pressure (hPa)'},inplace=True)
+    drifter.rename(columns={' BPT':'air temperature (degC)'},inplace=True)
     drifter['Unit_ID'] = b
-    drifter = drift_speed(drifter.sort_index()) # NOTE index is reversed in raw
+    drifter = drifter.sort_index() # NOTE index is reversed in raw
+    drifter = drift_speed(drifter)
     drifter = coordinates(drifter)
     drifter.to_csv(ODIR+b+'.csv')
 
+# reprocess ISVP1 at 1 hour frequency
+b='ISVP1'
+f='300234067003010-300234067003010-20191015T064320UTC.csv'
+drifter = pd.read_csv(BDIR+f,parse_dates=True)
+drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
+drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
+drifter.set_index('time',inplace=True)
+drifter.drop(timename, axis=1, inplace=True)
+drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
+drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
+drifter.rename(columns={' SST':'temperature (degC)'},inplace=True)
+drifter.rename(columns={' BP':'barometric_pressure (hPa)'},inplace=True)
+drifter.rename(columns={' BPT':'air temperature (degC)'},inplace=True)
+drifter['Unit_ID'] = b
+drifter = drifter.sort_index() # NOTE index is reversed in raw
+drifter = drifter.resample('1H').mean(numeric_only=True) # from 30 min 
+drifter = drifter.fillna(method='ffill') # interpolate missing data
+drifter = drift_speed(drifter)
+drifter = coordinates(drifter)
+drifter.to_csv(ODIR+b+'.csv')
 #%% SAWS ISVP (spring)
 latname='latitude'
 lonname='longitude'

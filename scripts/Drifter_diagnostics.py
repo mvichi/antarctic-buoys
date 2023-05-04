@@ -23,49 +23,39 @@ import pandas as pd
 import matplotlib as mpl
 from Drifter import drifter_check
 from Drifter import meander_coeff,meander_coeff_discrete
-from Drifter import dispersion,dispersion_discrete
+from Drifter import abs_dispersion,abs_dispersion_discrete
 import matplotlib.dates as mdates
 import seaborn as sns
 
 BDIR = '../data/' # directory of the drifter data
 
-#%% Read in the buoy drifter data 
+
+#%% USER INPUT
+# Read in the buoy drifter data 
+
 theBuoy = 'ISVP1'                                     
-drifter = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True)
-# dates ticks
+drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
+# dates ticks to be used in the final figure
 DAY = 10
-# locate any special date range
-drifter = drifter.loc['2019-07-27':'2019-10-05 12:00:00']
-drifter_1 = drifter_1.resample('1H').mean()                   # from 30 minutes 
-drifter_1 = drifter_1.fillna(method='ffill')
-drifter_1 = drifter_1[1:]                                     # start from 01:00 
 
-#%% Read in the buoy drifter data 
-theBuoy = 'Trident_U1'                                     
-drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
-# dates ticks
-DAY = 15
-# locate any special date range
-drifter = drifter.loc['2017-08-05':]                
+#### Other examples (uncomment)
+# Winter 2017  
+# theBuoy = 'Trident_U1'                                     
+# drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
+# DAY = 15
+# drifter = drifter.loc['2017-08-05':]     # locate any special date range           
+ 
+# theBuoy = '2014S9'                                     
+# drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
+# DAY = 10
+# drifter = drifter.loc['2015-07-06':]      
 
-#%% Read in the buoy drifter data 
-theBuoy = '2014S9'                                     
-drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
-# dates ticks
-DAY = 10
-# locate any special date range
-drifter = drifter.loc['2015-07-06':]      
-
-#%% Read in the buoy drifter data 
-theBuoy = '2015P6'                                     
-drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
-drifter_qc = drifter_check(drifter,criterion='max')
-# dates ticks
-DAY = 15
-# locate any special date range (make a copy to manipulate it)
-df=drifter.loc['2015-04-01':'2015-08-15'].copy()
-# quality-check the data using the max criterion (< 2 m/s)
-drifter=drifter_check(df,criterion='max',maxspeed=2.) 
+# theBuoy = '2015P6'                                     
+# drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
+# DAY = 15
+# df=drifter.loc['2015-04-01':'2015-08-15'].copy()
+# # quality-check the data using the max criterion (< 2 m/s)
+# drifter=drifter_check(df,criterion='max',maxspeed=2.) 
 
 #%% extract coordinates and compute diagnostics for plotting
 lats = drifter['latitude (deg)']
@@ -76,36 +66,19 @@ dfo = drifter['distance (km)'] # distance from origin
 start = drifter.index.min()
 end = drifter.index.max()
 
-
-# Plot trajectory in km from deployment
-# Alternative method
-# ticks = pd.date_range(drifter.index.min(),
-#                      drifter.index.max(),freq='5D',normalize=True)
-# ticks = [date.value for date in ticks]
-# f,ax = plt.subplots()
-# im = plt.scatter(x,y,c=drifter.index)
-# ax.set_xlabel('km')
-# ax.set_ylabel('km')
-# cbar = plt.colorbar(im,ticks=ticks)
-# cbar.ax.set_yticklabels(pd.to_datetime(cbar.get_ticks()).strftime(date_format='%Y-%m-%d'))
-
-# Compute the meander coefficients
+#%% Compute the meander coefficients
 mc_cum = meander_coeff(drifter, cumulative=True)
 mc_1D = meander_coeff_discrete(drifter)
-mc_5D = meander_coeff_discrete(drifter,freq='5D')
-# the following method computes the daily averaged one per day 
-# n is the number of indicies per day - if hourly then n=24 or 4-hourly then n=6. 
-mc_1D_mean = meander_coeff_mean(drifter, n=24)
+mc_5D = meander_coeff_discrete(drifter,freq='5D',label='right')
 
+f,ax = plt.subplots()
+mc_cum.plot(ax=ax,label='cumulative')
+mc_5D.plot(marker='o',ax=ax,label='5D')
+mc_1D.plot(marker='o',ax=ax,label='1D')
+ax.set_ylabel('Meander coefficient')
+plt.legend()
 
-# f,ax = plt.subplots()
-# mc_cum.plot(label='cumulative')
-# mc_5D.plot(label='5D')
-# mc_1D.plot(label='1D')
-# ax.set_ylabel('Meander coefficient')
-# plt.legend()
-
-# Compute cumulative dispersion - this is for 1 single buoy
+#%% Compute cumulative dispersion - this is for 1 single buoy
 abs_disp_x = abs_dispersion(drifter,cumulative=True,which='x')
 abs_disp_y = abs_dispersion(drifter,cumulative=True,which='y')
 drifter['disp'] = abs_disp_x+abs_disp_y
@@ -146,19 +119,6 @@ plt.figure()
 plt.plot(xs,ys.values)
 plt.plot(xs,f(xs,alpha))
 
-#%% Read in the ERA5 data- atmospheric reanalysis
-#   First download Era5 wind data (u,v), 2-m air temperature, mslp
-#   for the same period as the drifter of interest.
-era5_dir = '.../data/'
-# ERA5 file for 2019
-e5_fil = xr.open_dataset(era5_dir+"/.nc")
-#   Extract the ERA5 atmospheric data at drifter location
-drifter = e5_variables(drifter, e5_file)
-
-# compute the kinematic parameters
-theta, theta_degs, WF, R2v, R2p = drift_response(drifter)    
-# using the WF and theta, compute the estimate currents speed.
-Cuv, C = current_estimation(drifter,theta, WF)
 
 #%% Plot the Velocity, Cumulative MC and Discrete MC
 
@@ -216,7 +176,7 @@ ax_Vel.text(-0.13, 1,'(b)', transform=ax_Vel.transAxes,
 # ax_AC.text(-0.13, 1,'(c)', transform=ax_AC.transAxes,
 #       fontsize=18, va='top')
 ax_dist = plt.subplot2grid(PGrid, (1,1))
-sns.histplot(drifter_qc['U (m/s)'],ax=ax_dist)
+sns.histplot(drifter['U (m/s)'],ax=ax_dist)
 ax_dist.text(-0.13, 1,'(c)', transform=ax_dist.transAxes,
       fontsize=18, va='top')
 
@@ -227,8 +187,6 @@ ax_MC.plot(mc_5D.index, mc_5D, linewidth=2, color='green',
            marker='|', label='Discrete (5D)')
 ax_MC.plot(mc_1D.index, mc_1D, linewidth=2, color='lightblue', 
            marker='|', label='Discrete (1D)')
-ax_MC.plot(mc_1D_mean.index, mc_1D_mean, linewidth=2, color='orange', 
-           marker='|', label='Daily Averaged Discrete')
 ax_MC.set_ylabel('Meander Coefficient')
 set_daterange(ax_MC,byday=DAY)
 ax_MC.text(-0.13, 1,'(d)', transform=ax_MC.transAxes,
@@ -249,7 +207,22 @@ plt.legend(loc=4)
 
 plt.tight_layout()
 
+#%%
+# Plot trajectory in km from deployment
+# Alternative method
+# ticks = pd.date_range(drifter.index.min(),
+#                      drifter.index.max(),freq='5D',normalize=True)
+# ticks = [date.value for date in ticks]
+# f,ax = plt.subplots()
+# im = plt.scatter(x,y,c=drifter.index)
+# ax.set_xlabel('km')
+# ax.set_ylabel('km')
+# cbar = plt.colorbar(im,ticks=ticks)
+# cbar.ax.set_yticklabels(pd.to_datetime(cbar.get_ticks()).strftime(date_format='%Y-%m-%d'))
+
+
 #%% Compute the drift response estimates
+import xarray as xr
 '''
     First download Era5 hourly data (on single levels from 1940 to present).
     The variables should include - wind velocity (u,v), 2-m air temperature, mslp
@@ -268,4 +241,5 @@ theta, theta_degs, WF, R2v, R2p = drift_response(drifter)
 Cuv, C = current_estimation(drifter,theta, WF)
 
 # end of code
+
 
