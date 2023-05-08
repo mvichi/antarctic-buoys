@@ -15,6 +15,11 @@ reported by Lukovich and others (2017, 2021). This is a variance
 method.
 
 """
+import numpy as np
+import pandas as pd
+import math
+from geopy.distance import distance
+from datetime import timedelta
 #############################
 #%% calculate the deformation
 #############################
@@ -58,9 +63,9 @@ def separation(drifter1, drifter2):
                       [lat2[k], lon2[k]]).km for k in range(len(lat2))]
     # zonal and meridional separation
     Lx_tau = [distance([lat1[k], lon1[k]],
-                      [lat1[k], lon2[k]]).km for k in range(len(lat2))]
-    Ly_tau = [distance([lat1[k]],
-                      [lat2[k]]).km for k in range(len(lat2))]        
+                       [lat1[k], lon2[k]]).km for k in range(len(lat2))]
+    Ly_tau = [distance([lat1[k], lon1[k]],
+                       [lat2[k], lon1[k]]).km for k in range(len(lat2))]        
     # calculate the delta_r_sq from L0
     N = len(t)
     if N==0:
@@ -199,7 +204,7 @@ def std_disp(D_list, time, nob=nob, freq=freq):
 # 6. Create a list of the deformation rates
 # 7. Calculate the standard deviation of the deformation rate
 
-def delta_r_sq(drifter1, drifter2, freq=freq):
+def delta_r_sq(drifter1, drifter2, time, freq=freq):
     '''
     Calculation of the change in separation between a pair of 
     buoys (delta_r) as a function of tau - Methods from Rampal and others (2009).
@@ -212,6 +217,7 @@ def delta_r_sq(drifter1, drifter2, freq=freq):
         The drifter DataFrame
     drifter2 : pandas DataFrame
         The drifter DataFrame (shorter drifter)
+    time : datetime
     freq: int
         How many indices in tau (change in time)
     Returns

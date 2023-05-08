@@ -14,15 +14,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib as mpl
-import matplotlib.dates as mdates
-import seaborn as sns
-from geopy.distance import distance 
-from matplotlib.dates import DayLocator,HourLocator,DateFormatter
-import math
-from datetime import timedelta, datetime, date
+from Rel_disp_functions import separation,rel_disp_0,disp_0,std_disp,rel_disp
+from Rel_disp_functions import delta_r_sq,disp_rate,std_disp_rate,rel_disp_var
+from matplotlib.dates import DayLocator,DateFormatter
 
 # directory of the processed drifter data
-BDIR_P = '.../data/'
+BDIR_P = '../data/'
 
 #%% Read in the buoy drifter data 
 theBuoy = 'ISVP1'                                     
@@ -124,9 +121,9 @@ stdD  = std_disp(D_list, time, nob=nob, freq=freq)       # 24 indices * 1 day
 #   This based on the change between each time step
 ##############################################################
 
-dr2_d1d2 = delta_r_sq(drifter_1, drifter_2, freq=freq)
-dr2_d1d3 = delta_r_sq(drifter_1, drifter_3, freq=freq) 
-dr2_d2d3 = delta_r_sq(drifter_2, drifter_3, freq=freq) 
+dr2_d1d2 = delta_r_sq(drifter_1, drifter_2, time, freq=freq)
+dr2_d1d3 = delta_r_sq(drifter_1, drifter_3, time, freq=freq) 
+dr2_d2d3 = delta_r_sq(drifter_2, drifter_3, time, freq=freq) 
 
 # create a list of delta_r2 for all pairs
 dr2_list = [dr2_d1d2['dr2'], dr2_d1d3['dr2'], dr2_d2d3['dr2']]
