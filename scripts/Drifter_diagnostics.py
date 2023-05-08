@@ -221,25 +221,6 @@ plt.tight_layout()
 # cbar.ax.set_yticklabels(pd.to_datetime(cbar.get_ticks()).strftime(date_format='%Y-%m-%d'))
 
 
-#%% Compute the drift response estimates
-import xarray as xr
-'''
-    First download Era5 hourly data (on single levels from 1940 to present).
-    The variables should include - wind velocity (u,v), 2-m air temperature, mslp
-    for the same period as the drifter of interest.
-'''
-# Read in the ERA5 data- atmospheric reanalysis  
-era5_dir = '.../data/'
-# ERA5 file for 2019
-e5_file = xr.open_dataset(era5_dir+"/.nc")
-#   Extract the ERA5 atmospheric data at drifter location
-drifter = e5_variables(drifter, e5_file)
-
-# compute the kinematic parameters
-theta, theta_degs, WF, R2v, R2p = drift_response(drifter)    
-# using the WF and theta, compute the estimate currents speed.
-Cuv, C = current_estimation(drifter,theta, WF)
-
 # end of code
 
 
