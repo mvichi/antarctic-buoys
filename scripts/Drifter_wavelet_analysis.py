@@ -12,36 +12,34 @@ Wavelet Analysis of the Drifter
       in time. 
 
 First - compute the PSD (or filtered spectrum) of the drifter.
-      - Run Drifter_wavelet_functions.py script
+
+NB: it requires wavelet_functions.py 
 """
 
 #%%
 from matplotlib.gridspec import GridSpec
 import matplotlib.ticker as ticker
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.dates import DayLocator,HourLocator,DateFormatter
-from scipy.signal import find_peaks
-import matplotlib.dates as mdates
-from scipy.stats import chi2
-
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from waveletFunctions import wavelet,wave_signif
+from matplotlib.dates import DayLocator,DateFormatter
 #%% Use data from the power spectral analysis - read in either the unfiltered data
 ## or the filtered data
 
 #drifter = drifter_1
-#x = drifter['u (m/s)'][1:]                                         # zonal velocity
-#y = drifter['v (m/s)'][1:]                                         # meridional velocity
-#x = drifter['U (m/s)'][1:]                                         # Speed
-#var_x = np.std(x, ddof=1) ** 2                                     # varience (standard deiviation)
-#var_y = np.std(y, ddof=1) ** 2                                     # varience (standard deiviation)            
-
-#%% if using the filtered spectrum from the PSD 
-# High-pass filter zonal and meridional velocities 
-t = drifter.index[1:]
-x = x_filt   # (or use filtered speed)                              # filtered zonal velocity (or filtered speed U)
-y = y_filt                                                          # filtered meridional velocity
-var_x = np.std(x, ddof=1) ** 2                                      # varience of x
-var_y = np.std(y, ddof=1) ** 2                                      # varience of y
-
+                                   # varience (standard deiviation)            
+#%% Read in the buoy drifter data 
+BDIR = '../data/'
+theBuoy = 'ISVP1'                                     
+drifter = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
+x = drifter['u (m/s)']                                        # zonal velocity
+y = drifter['v (m/s)']                                         # meridional velocity
+x = drifter['U (m/s)']                                         # Speed
+var_x = np.std(x, ddof=1) ** 2                                 # variance (standard deiviation)
+var_y = np.std(y, ddof=1) ** 2                                 # variance of y
+t = drifter.index
 #%% Load the variables for the Wavelet transform
 dt = 1                                                              # sampling intervals in hours
 NFFT = np.size(x)                                                   # FFT length
@@ -84,7 +82,7 @@ plt.xlabel('Date')
 plt.ylabel('Period (hours)')
 plt.title('Wavelet Power Spectrum', fontsize= 30)                   # change to (V component)
 plt.contour(t, period, sig95, [-99, 1], colors='k')                 # significance contour, levels at -99 (fake) and 1 (95% signif)            
-plt.plot(t, coi[1:], 'r', linewidth=2.5)                            # cone-of-influence, anything "below" is dubious                            
+plt.plot(t, coi, 'r', linewidth=2.5)                            # cone-of-influence, anything "below" is dubious                            
 plt1.set_yscale('log', base=2, subs=None)
 plt1.xaxis.set_major_locator(DayLocator(interval=10))
 plt1.xaxis.set_major_formatter(DateFormatter('%d-%m'))
