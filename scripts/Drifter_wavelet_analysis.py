@@ -95,7 +95,7 @@ plt1 = plt.subplot(gs[1, 0:3])
 CS = plt.contourf(t, period, power, cmap=plt.cm.BuGn) # , vmin=0, vmax=2.4)                           
 plt.xlabel('Date')
 plt.ylabel('Period (hours)')
-plt.title('Wavelet Power Spectrum', fontsize= 30)                        # change to (V component)
+plt.title('Wavelet Power Spectrum', fontsize= 30)                        
 plt.contour(t, period, sig95, [-99, 1], colors='k')                      # significance contour, levels at -99 (fake) and 1 (95% signif)  
 # cone-of-influence (coi), anything "below" is dubious - edge effects           
 plt.plot(t, coi[1:], 'r', linewidth=2.5)                                 # remove the 1 if sizes don't match                                                  
@@ -120,7 +120,7 @@ plt2 = plt.subplot(gs[1, -1])
 plt.plot(wt_spectrum, period, linewidth=3, color='mediumseagreen')      # wavelet power spectrum
 plt.plot(signif_wt, period, '--', linewidth=3, color='black')           # wavelet significance level 
 plt.xlabel('Power (variance)') 
-plt.title('Wavelet Spectrum', fontsize= 30)                             # change to (V component)
+plt.title('Wavelet Spectrum', fontsize= 30)                            
 plt.xlim([0, 1.25 * np.max(wt_spectrum)])
 plt2.set_yscale('log', base=2, subs=None)
 plt.ylim(2.5,256)
