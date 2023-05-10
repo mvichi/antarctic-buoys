@@ -10,6 +10,8 @@ Wavelet Analysis of the Drifter
       decomposing a time series into a time-frequency space, it allows for the 
       determination of the dominant modes of variability, and how these modes vary
       in time. 
+      
+First run script: Drifter_wavelet_functions.py 
 """
 
 #%%
