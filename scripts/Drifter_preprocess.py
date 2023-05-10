@@ -25,10 +25,10 @@ BDIR='../data/raw/'
 #%% Trident 1-3
 buoy = ['Trident_U1','Trident_U2','Trident_U3']
 file = ['Unit1.xlsx','Unit2.xlsx','Unit3.xlsx']
-latname='Latitude'
-lonname='Longitude'
-timename='GPS_Time'
-datename='Reading_Date'
+latname ='Latitude'
+lonname ='Longitude'
+timename ='GPS_Time'
+datename ='Reading_Date'
 for b,f in zip(buoy,file):
     drifter = pd.read_excel(BDIR+f)
     drifter['time'] = drifter[datename] + pd.to_timedelta(drifter[timename].astype(str))
@@ -44,13 +44,16 @@ for b,f in zip(buoy,file):
     drifter = coordinates(drifter)
     drifter.to_csv(ODIR+b+'.csv')
 
-#%% Trident 4
-BFILE='Unit4.xlsx'
-latname='Latitude'
-lonname='Longitude'
-timename='DateTime'
+#%% Trident 4 - 2019 spring cruise
+#   NOTE that this buoy was switched on ealier to check the its transmission
+#   of data but it was only deployed on the 30th October 2019 
+#  (Ryan-Keogh and Vichi, 2020). 
+BFILE ='Unit4.xlsx'
+latname ='Latitude.1'
+lonname ='Longitude.1'
+timename ='UTC Date Time'
 ID = 'Trident_U4'
-drifter = pd.read_excel(BDIR+BFILE)
+drifter = pd.read_excel(BDIR_2019S+BFILE)
 drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
 drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
 drifter.set_index('time',inplace=True)
@@ -61,6 +64,9 @@ drifter['Unit_ID'] = ID
 drifter.rename(columns={'Temperature':'temperature (degC)'},inplace=True)
 drifter = drift_speed(drifter)
 drifter = coordinates(drifter)
+drifter = drifter.resample('4H').mean() # contains missing timestamps
+drifter = drifter = drifter.fillna(method='ffill') # interpolate missing data
+drifter = drifter.loc['2019-10-30 12:00':]
 drifter.to_csv(ODIR+ID+'.csv')
 
 #%% AWI 
@@ -104,6 +110,7 @@ for b,f in zip(buoy,file):
     drifter = coordinates(drifter)
     drifter.to_csv(ODIR+b+'.csv')
     
+    
 #%% SAWS ISVP (winter)
 # These data contain missing timestamps.
 # N.B. 
@@ -114,13 +121,12 @@ latname=' LATITUDE'
 lonname=' LONGITUDE'
 timename='Data Date (UTC)'
 
-buoy = ['ISVP1_30min','ISVP3','ISVP2']
-file = ['300234067003010-300234067003010-20191015T064320UTC.csv',
-        '300234066992870-300234066992870-20191015T064314UTC.csv',
+buoy = ['ISVP3','ISVP2']
+file = ['300234066992870-300234066992870-20191015T064314UTC.csv',
         '300234067002060-300234067002060-20191015T064316UTC.csv']
 
 for b,f in zip(buoy,file):
-    drifter = pd.read_csv(BDIR+f,parse_dates=True)
+    drifter = pd.read_csv(BDIR_2019W+f,parse_dates=True)
     drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
     drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
     drifter.set_index('time',inplace=True)
@@ -134,12 +140,14 @@ for b,f in zip(buoy,file):
     drifter = drifter.sort_index() # NOTE index is reversed in raw
     drifter = drift_speed(drifter)
     drifter = coordinates(drifter)
+    drifter = drifter.resample('1H').mean()
+    drifter = drifter.fillna(method='ffill') # interpolate missing data
     drifter.to_csv(ODIR+b+'.csv')
-
-# reprocess ISVP1 at 1 hour frequency
-b='ISVP1'
-f='300234067003010-300234067003010-20191015T064320UTC.csv'
-drifter = pd.read_csv(BDIR+f,parse_dates=True)
+    
+# process ISVP1 at 30 minutes frequency
+b ='ISVP1_30min'
+f ='300234067003010-300234067003010-20191015T064320UTC.csv'
+drifter = pd.read_csv(BDIR_2019W+f,parse_dates=True)
 drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
 drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
 drifter.set_index('time',inplace=True)
@@ -151,15 +159,38 @@ drifter.rename(columns={' BP':'barometric_pressure (hPa)'},inplace=True)
 drifter.rename(columns={' BPT':'air temperature (degC)'},inplace=True)
 drifter['Unit_ID'] = b
 drifter = drifter.sort_index() # NOTE index is reversed in raw
-drifter = drifter.resample('1H').mean(numeric_only=True) # from 30 min 
-drifter = drifter.fillna(method='ffill') # interpolate missing data
 drifter = drift_speed(drifter)
 drifter = coordinates(drifter)
+drifter = drifter.resample('30min').mean()
+drifter = drifter.fillna(method='ffill') # interpolate missing data
 drifter.to_csv(ODIR+b+'.csv')
-#%% SAWS ISVP (spring)
-latname='latitude'
-lonname='longitude'
-timename='time'
+
+# reprocess ISVP1 at 1 hour frequency
+b='ISVP1'
+f='300234067003010-300234067003010-20191015T064320UTC.csv'
+drifter = pd.read_csv(BDIR_2019W+f,parse_dates=True)
+drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
+drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
+drifter.set_index('time',inplace=True)
+drifter.drop(timename, axis=1, inplace=True)
+drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
+drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
+drifter.rename(columns={' SST':'temperature (degC)'},inplace=True)
+drifter.rename(columns={' BP':'barometric_pressure (hPa)'},inplace=True)
+drifter.rename(columns={' BPT':'air temperature (degC)'},inplace=True)
+drifter['Unit_ID'] = b
+drifter = drifter.sort_index() # NOTE index is reversed in raw
+drifter = drift_speed(drifter)
+drifter = coordinates(drifter)
+drifter = drifter.resample('1H').mean() # from 30 min
+drifter = drifter.fillna(method='ffill') # interpolate missing data
+drifter.to_csv(ODIR+b+'.csv')
+
+#%% SAWS ISVP - 2019 spring cruise
+# These data contain missing timestamps.
+latname ='latitude'
+lonname ='longitude'
+timename ='time'
 
 buoy = ['ISVP4','ISVP5','ISVP6']
 file = ['300234066433050.xlsx',
@@ -167,7 +198,7 @@ file = ['300234066433050.xlsx',
         '300234066433052.xlsx']
 
 for b,f in zip(buoy,file):
-    drifter = pd.read_excel(BDIR+f,parse_dates=True)
+    drifter = pd.read_excel(BDIR_2019S+f,parse_dates=True)
     drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
     drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
     drifter.set_index('time',inplace=True)
@@ -178,12 +209,14 @@ for b,f in zip(buoy,file):
     drifter['Unit_ID'] = b
     drifter = drift_speed(drifter)
     drifter = coordinates(drifter)
+    drifter = drifter.resample('1H').mean()  
+    drifter = drifter.fillna(method='ffill') # interpolate missing data
     drifter.to_csv(ODIR+b+'.csv')
 
 #%% SHARC buoys - 2022 winter cruise
-latname='GPS Latitude'
-lonname='GPS Longitude'
-timename='UTC Time'   
+latname ='GPS Latitude'
+lonname ='GPS Longitude'
+timename ='UTC Time'   
 
 buoy = ['SHARC_B1','SHARC_B2', 'SHARC_B3', 'SHARC_B4',
         'SHARC_B5', 'SHARC_B6']
@@ -209,9 +242,9 @@ for b,f in zip(buoy,file):
     drifter.to_csv(ODIR+b+'.csv')
 
 #%% wave buoys - 2022 winter cruise
-latname='Latitude (deg)'
-lonname='Longitude (deg)'
-timename='Calc_time (UTC)'   
+latname ='Latitude (deg)'
+lonname ='Longitude (deg)'
+timename ='Calc_time (UTC)'   
 
 buoy = ['wave_B1','wave_B2', 'wave_B3']
 file = ['wave_lp2.csv','wave_lp4.csv', 
@@ -234,10 +267,10 @@ for b,f in zip(buoy,file):
     
 #%% box buoy - 2022 winter cruise
 
-BFILE='box_buoy.csv'
-latname='lat'
-lonname='lon'
-timename='time'
+BFILE ='box_buoy.csv'
+latname ='lat'
+lonname ='lon'
+timename ='time'
 ID = 'box_buoy'
 
 fmt = "%Y-%m-%dT%H:%M:%S"
