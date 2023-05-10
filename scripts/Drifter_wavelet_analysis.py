@@ -11,7 +11,7 @@ Wavelet Analysis of the Drifter
       determination of the dominant modes of variability, and how these modes vary
       in time. 
       
-First run script: Drifter_wavelet_functions.py 
+First run script: wavelet_functions.py 
 """
 
 #%%
