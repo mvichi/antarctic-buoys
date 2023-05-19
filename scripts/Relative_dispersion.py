@@ -3,7 +3,7 @@
 """
 Created on Wed Jan  4 13:15:18 2023
 
-@author: Ashleigh Womack 
+@author: Ashleigh Womack (UCT)
 
 Relative dispersion and proxy for total deformation of the 2019
 Winter Cruise buoys.
@@ -25,12 +25,10 @@ BDIR_P = '../data/'
 theBuoy = 'ISVP1'                                     
 drifter_1 = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True)
 
-# due to the confusion of north to south -> the buoy names are switched
-theBuoy = 'ISVP3'                                     
+theBuoy = 'ISVP2'                                     
 drifter_2 = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True)
 
-# due to the confusion of north to south -> the buoy names are switched
-theBuoy = 'ISVP2'                                     
+theBuoy = 'ISVP3'                                     
 drifter_3 = pd.read_csv(BDIR_P+theBuoy+'.csv',index_col='time',parse_dates=True)
 
 
