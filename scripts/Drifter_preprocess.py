@@ -9,11 +9,11 @@ names
 
 Created on Tue Dec 28 15:03:27 2021
 
-@author: Marcello Vichi
+@author: Marcello Vichi (UCT)
 """
 
 import pandas as pd
-from Drifter import drift_speed,coordinates
+from Drifter import drift_speed, coordinates
 
 # date format = '%Y-%m-%d %H:%M:%S'
 fmt = '%Y-%m-%d %H:%M:%S' # exclude %z
@@ -53,7 +53,7 @@ latname ='Latitude.1'
 lonname ='Longitude.1'
 timename ='UTC Date Time'
 ID = 'Trident_U4'
-drifter = pd.read_excel(BDIR_2019S+BFILE)
+drifter = pd.read_excel(BDIR+BFILE)
 drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
 drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
 drifter.set_index('time',inplace=True)
@@ -126,7 +126,7 @@ file = ['300234066992870-300234066992870-20191015T064314UTC.csv',
         '300234067002060-300234067002060-20191015T064316UTC.csv']
 
 for b,f in zip(buoy,file):
-    drifter = pd.read_csv(BDIR_2019W+f,parse_dates=True)
+    drifter = pd.read_csv(BDIR+f,parse_dates=True)
     drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
     drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
     drifter.set_index('time',inplace=True)
@@ -147,7 +147,7 @@ for b,f in zip(buoy,file):
 # process ISVP1 at 30 minutes frequency
 b ='ISVP1_30min'
 f ='300234067003010-300234067003010-20191015T064320UTC.csv'
-drifter = pd.read_csv(BDIR_2019W+f,parse_dates=True)
+drifter = pd.read_csv(BDIR+f,parse_dates=True)
 drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
 drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
 drifter.set_index('time',inplace=True)
@@ -168,7 +168,7 @@ drifter.to_csv(ODIR+b+'.csv')
 # reprocess ISVP1 at 1 hour frequency
 b='ISVP1'
 f='300234067003010-300234067003010-20191015T064320UTC.csv'
-drifter = pd.read_csv(BDIR_2019W+f,parse_dates=True)
+drifter = pd.read_csv(BDIR+f,parse_dates=True)
 drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
 drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
 drifter.set_index('time',inplace=True)
@@ -198,7 +198,7 @@ file = ['300234066433050.xlsx',
         '300234066433052.xlsx']
 
 for b,f in zip(buoy,file):
-    drifter = pd.read_excel(BDIR_2019S+f,parse_dates=True)
+    drifter = pd.read_excel(BDIR+f,parse_dates=True)
     drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
     drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
     drifter.set_index('time',inplace=True)
@@ -226,7 +226,7 @@ file = ['SHARC_SB1_ICE21.csv','SHARC_SB2_ICE22.csv',
 
 fmt = '%d/%b/%Y %H:%M:%S' # different format to the other buoy clusters
 for b,f in zip(buoy,file):
-    drifter = pd.read_csv(BDIR_2022W+f,parse_dates=True)
+    drifter = pd.read_csv(BDIR+f,parse_dates=True)
     drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
     drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
     drifter.set_index('time',inplace=True)
@@ -252,7 +252,7 @@ file = ['wave_lp2.csv','wave_lp4.csv',
 
 fmt = '%Y.%m.%d %H:%M:%S' # different format to the other buoy clusters
 for b,f in zip(buoy,file):
-    drifter = pd.read_csv(BDIR_2022W+f,parse_dates=True)
+    drifter = pd.read_csv(BDIR+f,parse_dates=True)
     drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
     drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
     drifter.set_index('time',inplace=True)
@@ -274,7 +274,7 @@ timename ='time'
 ID = 'box_buoy'
 
 fmt = "%Y-%m-%dT%H:%M:%S"
-drifter = pd.read_csv(BDIR_2022W+BFILE)
+drifter = pd.read_csv(BDIR+BFILE)
 drifter['time'] = pd.to_datetime(drifter[timename])#,format=fmt)
 drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
 drifter.set_index('time',inplace=True)
