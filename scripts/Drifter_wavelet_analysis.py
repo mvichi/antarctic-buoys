@@ -3,7 +3,7 @@
 """
 Created on Tue May  9 12:36:35 2023
 
-@author: Ashleigh Womack
+@author: Ashleigh Womack (UCT)
 
 Wavelet Analysis of the Drifter
     - This yields information about the time series and frequencies together. By
