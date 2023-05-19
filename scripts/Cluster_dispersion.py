@@ -5,7 +5,7 @@ Created on Wed Mar  2 10:55:49 2022
 Reads preprocessed files
 Calculation of the Cluster Absolute (Single-Particle) Dispersion
       
-@author: Ashleigh Womack
+@author: Ashleigh Womack (UCT)
 """
 #%%
 import numpy as np
