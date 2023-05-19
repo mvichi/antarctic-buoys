@@ -17,7 +17,7 @@ from Drifter import coordinates
 from datetime import timedelta
 from matplotlib.dates import DayLocator,HourLocator,DateFormatter
 
-BDIR = '../data/' # directory of the drifter data drifter data
+BDIR = '../data/' # directory of the drifter data
 
 #%% Cluster absolute dispersion  
 def cluster_dispersion(dx_list, dy_list, time):
@@ -76,12 +76,10 @@ def cluster_dispersion(dx_list, dy_list, time):
 theBuoy = 'ISVP1'                                     
 drifter_1 = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True) 
 
-# due to the confusion of north to south -> the buoy names are switched
-theBuoy = 'ISVP3'                                     
+theBuoy = 'ISVP2'                                     
 drifter_2 = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
 
-# due to the confusion from north to south -> the buoy names are switched
-theBuoy = 'ISVP2'                                     
+theBuoy = 'ISVP3'                                     
 drifter_3 = pd.read_csv(BDIR+theBuoy+'.csv',index_col='time',parse_dates=True)
    
 # Manually resample the data for the cluster dates for every hour
