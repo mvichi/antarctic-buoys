@@ -3,7 +3,7 @@
 """
 Created on Fri Sep 23 11:52:19 2022
 
-@author: Ashleigh Womack
+@author: Ashleigh Womack (UCT)
 
 Functions to 
 1. compute the relative dispersion of sea ice,
