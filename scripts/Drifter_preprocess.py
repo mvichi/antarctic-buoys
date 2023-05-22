@@ -214,76 +214,76 @@ for b,f in zip(buoy,file):
     drifter.to_csv(ODIR+b+'.csv')
 
 #%% SHARC buoys - 2022 winter cruise
-latname ='GPS Latitude'
-lonname ='GPS Longitude'
-timename ='UTC Time'   
+#latname ='GPS Latitude'
+#lonname ='GPS Longitude'
+#timename ='UTC Time'   
 
-buoy = ['SHARC_B1','SHARC_B2', 'SHARC_B3', 'SHARC_B4',
-        'SHARC_B5', 'SHARC_B6']
-file = ['SHARC_SB1_ICE21.csv','SHARC_SB2_ICE22.csv', 
-        'SHARC_SB3_ICE23.csv','SHARC_SB4_ICE11.csv', 
-        'SHARC_SB5_ICE12.csv','SHARC_SB6_ICE00.csv']
+#buoy = ['SHARC_B1','SHARC_B2', 'SHARC_B3', 'SHARC_B4',
+#        'SHARC_B5', 'SHARC_B6']
+#file = ['SHARC_SB1_ICE21.csv','SHARC_SB2_ICE22.csv', 
+#        'SHARC_SB3_ICE23.csv','SHARC_SB4_ICE11.csv', 
+#        'SHARC_SB5_ICE12.csv','SHARC_SB6_ICE00.csv']
 
-fmt = '%d/%b/%Y %H:%M:%S' # different format to the other buoy clusters
-for b,f in zip(buoy,file):
-    drifter = pd.read_csv(BDIR+f,parse_dates=True)
-    drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
-    drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
-    drifter.set_index('time',inplace=True)
-    drifter = drifter[::-1]  
-    drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
-    drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
-    drifter = drifter.drop(drifter[drifter['latitude (deg)']==0].index)
-#    drifter.rename(columns={'sst':'temperature (degC)'},inplace=True)
-#    drifter.rename(columns={'slp':'barometric_pressure (hPa)'},inplace=True)        
-    drifter['Unit_ID'] = b
-    drifter = drift_speed(drifter)
-    drifter = coordinates(drifter)
-    drifter.to_csv(ODIR+b+'.csv')
+#fmt = '%d/%b/%Y %H:%M:%S' # different format to the other buoy clusters
+#for b,f in zip(buoy,file):
+#    drifter = pd.read_csv(BDIR+f,parse_dates=True)
+#    drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
+#    drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
+#    drifter.set_index('time',inplace=True)
+#    drifter = drifter[::-1]  
+#    drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
+#    drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
+#    drifter = drifter.drop(drifter[drifter['latitude (deg)']==0].index)
+##    drifter.rename(columns={'sst':'temperature (degC)'},inplace=True)
+##    drifter.rename(columns={'slp':'barometric_pressure (hPa)'},inplace=True)        
+#    drifter['Unit_ID'] = b
+#    drifter = drift_speed(drifter)
+#    drifter = coordinates(drifter)
+#    drifter.to_csv(ODIR+b+'.csv')
 
 #%% wave buoys - 2022 winter cruise
-latname ='Latitude (deg)'
-lonname ='Longitude (deg)'
-timename ='Calc_time (UTC)'   
+#latname ='Latitude (deg)'
+#lonname ='Longitude (deg)'
+#timename ='Calc_time (UTC)'   
 
-buoy = ['wave_B1','wave_B2', 'wave_B3']
-file = ['wave_lp2.csv','wave_lp4.csv', 
-        'wave_lp8.csv']
+#buoy = ['wave_B1','wave_B2', 'wave_B3']
+#file = ['wave_lp2.csv','wave_lp4.csv', 
+#        'wave_lp8.csv']
 
-fmt = '%Y.%m.%d %H:%M:%S' # different format to the other buoy clusters
-for b,f in zip(buoy,file):
-    drifter = pd.read_csv(BDIR+f,parse_dates=True)
-    drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
-    drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
-    drifter.set_index('time',inplace=True)
-    drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
-    drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
-#    drifter.rename(columns={'sst':'temperature (degC)'},inplace=True)
-#    drifter.rename(columns={'slp':'barometric_pressure (hPa)'},inplace=True)        
-    drifter['Unit_ID'] = b
-    drifter = drift_speed(drifter)
-    drifter = coordinates(drifter)
-    drifter.to_csv(ODIR+b+'.csv')
+#fmt = '%Y.%m.%d %H:%M:%S' # different format to the other buoy clusters
+#for b,f in zip(buoy,file):
+#    drifter = pd.read_csv(BDIR+f,parse_dates=True)
+#    drifter['time'] = pd.to_datetime(drifter[timename],format=fmt)
+#    drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
+#    drifter.set_index('time',inplace=True)
+#    drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
+#    drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
+##    drifter.rename(columns={'sst':'temperature (degC)'},inplace=True)
+##    drifter.rename(columns={'slp':'barometric_pressure (hPa)'},inplace=True)        
+#    drifter['Unit_ID'] = b
+#    drifter = drift_speed(drifter)
+#    drifter = coordinates(drifter)
+#    drifter.to_csv(ODIR+b+'.csv')
     
 #%% box buoy - 2022 winter cruise
 
-BFILE ='box_buoy.csv'
-latname ='lat'
-lonname ='lon'
-timename ='time'
-ID = 'box_buoy'
+#BFILE ='box_buoy.csv'
+#latname ='lat'
+#lonname ='lon'
+#timename ='time'
+#ID = 'box_buoy'
 
-fmt = "%Y-%m-%dT%H:%M:%S"
-drifter = pd.read_csv(BDIR+BFILE)
-drifter['time'] = pd.to_datetime(drifter[timename])#,format=fmt)
-drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
-drifter.set_index('time',inplace=True)
-drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
-drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
+#fmt = "%Y-%m-%dT%H:%M:%S"
+#drifter = pd.read_csv(BDIR+BFILE)
+#drifter['time'] = pd.to_datetime(drifter[timename])#,format=fmt)
+#drifter.time = drifter['time'].dt.strftime('%Y-%m-%d %H:%M:%S').astype('datetime64[ns]') # change the fmt of datetimeindex
+#drifter.set_index('time',inplace=True)
+#drifter.rename(columns={latname:'latitude (deg)'},inplace=True)
+#drifter.rename(columns={lonname:'longitude (deg)'},inplace=True)
 #drifter.drop(timename, axis=1, inplace=True)
-drifter['Unit_ID'] = ID
-drifter = drift_speed(drifter)
-drifter = coordinates(drifter)
-drifter.to_csv(ODIR+ID+'.csv')
+#drifter['Unit_ID'] = ID
+#drifter = drift_speed(drifter)
+#drifter = coordinates(drifter)
+#drifter.to_csv(ODIR+ID+'.csv')
 
 # end of code
