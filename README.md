@@ -7,6 +7,7 @@ This is a repository for the computation of diagnostics related to sea-ice drift
 
 This collection of scripts processes drifter data from the Antarctic MIZ, in the Atlantic and Indian Ocean sectors. It has been tested on drifter data collected during the SA Agulhas II expeditions, and public data from the AWI catalogue (see reference in the README.md). These scripts compute the buoys’ drift diagnostics, the drift response to ERA5 atmospheric forcing, the spectral analysis and wavelet analysis of the drift velocity, the cluster absolute and relative dispersion statistics, and the spectral analysis of the deformation proxy.
  
+
 Atmospheric data will need to be downloaded separately from ERA5 reanalysis (hourly on single levels from 1940 to present). Variables should include mean sea level pressure, wind velocity components (u, v), and 2-m air temperature for the period and region of the buoys’ drift. 
 
 This software uses the wavelet module developed by Torrence and Compo (1998), available at https://github.com/chris-torrence/wavelets. Torrence, C., and Compo, G.P., 1998. A practical guide to wavelet analysis. Bull. Amer. Meteor. Soc., 79, 61–78. 
