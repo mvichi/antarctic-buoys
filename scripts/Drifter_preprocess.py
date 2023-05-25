@@ -217,7 +217,7 @@ for b,f in zip(buoy,file):
 
 #%% SWIFT buoys - 2019 winter and spring cruises
 #   these buoys were deployed and retrieved in winter
-#   and then re-deployed in spring to be expendable
+#   and then re-deployed in spring and collected.
 #   (Thomson et al. 2023). 
 #   They have been already processed and downloaded as 
 #   .mat files. This allows the buoys to be read into python. 
