@@ -213,6 +213,66 @@ for b,f in zip(buoy,file):
     drifter = drifter.fillna(method='ffill') # interpolate missing data
     drifter.to_csv(ODIR+b+'.csv')
 
+#%% SWIFT buoys - 2019 winter and spring cruises
+#   these buoys were deployed and retrieved in winter
+#   and then re-deployed in spring to be expendable
+#   (Thomson et al. 2023). 
+#   They have been already processed and downloaded as 
+#   .mat files. This allows the buoys to be read into python. 
+
+# convert the matlab time to readable python datetime
+def datenum_to_datetime(datenum):
+    """
+    Convert Matlab datenum into Python datetime.
+    :param datenum: Date in datenum format
+    :return:        Datetime object corresponding to datenum.
+    """
+    days = datenum % 1
+    hours = days % 1 * 24
+    minutes = hours % 1 * 60
+    seconds = minutes % 1 * 60
+    return datetime.fromordinal(int(datenum)) \
+           + timedelta(days=int(days)) \
+           + timedelta(hours=int(hours)) \
+           + timedelta(minutes=int(minutes)) \
+           + timedelta(seconds=round(seconds)) \
+           - timedelta(days=366)
+         
+fmt = '%Y-%m-%d %H:%M:%S' 
+buoy = ['S20_winter','S20_spring',
+        'S21_winter','S21_spring']
+file = ['SWIFT20_winter.mat','SWIFT20_spring.mat',
+        'SWIFT21_winter.mat','SWIFT21_spring.mat']
+
+for b,f in zip(buoy,file):
+    # load the .mat files  
+    fname = pjoin(BDIR+f)         
+    contents = sio.loadmat(fname)
+    teststruct = contents['SWIFT']
+    teststruct.dtype
+    # read in the variables
+    Hs = np.transpose(teststruct['sigwaveheight'].astype(float))
+    lat = np.transpose(teststruct['lat'].astype(float))
+    lon = np.transpose(teststruct['lon'].astype(float))
+    matlab_time = np.transpose(teststruct['time'])
+    time = np.zeros(len(matlab_time)).astype(datetime) 
+    # matlab time to datetime
+    i=0
+    for i in range(len(matlab_time)):
+        time[i] = datenum_to_datetime(float(matlab_time[i])).strftime(fmt)
+        i=i+1
+    # create dataframe for the swift buoys
+    swift = pd.DataFrame(data=[time, lat, lon, Hs]).T
+    swift.columns =['time', 'latitude (deg)', 'longitude (deg)', 'sig wave height (m)']
+    # remove the brackets around the values in each column
+    swift['latitude (deg)'] = swift['latitude (deg)'].str.get(0)
+    swift['longitude (deg)'] = swift['longitude (deg)'].str.get(0)
+    swift['sig wave height (m)'] = swift['sig wave height (m)'].str.get(0)
+    swift['time'] = swift['time'].astype('datetime64[ns]')
+    swift.set_index('time',inplace=True)
+    swift['Unit_ID'] = b
+    swift.to_csv(ODIR+b+'.csv')
+    
 #%% SHARC buoys - 2022 winter cruise
 #latname ='GPS Latitude'
 #lonname ='GPS Longitude'
