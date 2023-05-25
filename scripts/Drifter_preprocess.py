@@ -14,6 +14,8 @@ Created on Tue Dec 28 15:03:27 2021
 
 import pandas as pd
 from Drifter import drift_speed, coordinates
+import scipy.io as sio
+from scipy import signal, stats
 
 # date format = '%Y-%m-%d %H:%M:%S'
 fmt = '%Y-%m-%d %H:%M:%S' # exclude %z
