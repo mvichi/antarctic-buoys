@@ -262,16 +262,18 @@ for b,f in zip(buoy,file):
         time[i] = datenum_to_datetime(float(matlab_time[i])).strftime(fmt)
         i=i+1
     # create dataframe for the swift buoys
-    swift = pd.DataFrame(data=[time, lat, lon, Hs]).T
-    swift.columns =['time', 'latitude (deg)', 'longitude (deg)', 'sig wave height (m)']
+    drifter = pd.DataFrame(data=[time, lat, lon, Hs]).T
+    drifter.columns =['time', 'latitude (deg)', 'longitude (deg)', 'sig wave height (m)']
     # remove the brackets around the values in each column
-    swift['latitude (deg)'] = swift['latitude (deg)'].str.get(0)
-    swift['longitude (deg)'] = swift['longitude (deg)'].str.get(0)
-    swift['sig wave height (m)'] = swift['sig wave height (m)'].str.get(0)
-    swift['time'] = swift['time'].astype('datetime64[ns]')
-    swift.set_index('time',inplace=True)
-    swift['Unit_ID'] = b
-    swift.to_csv(ODIR+b+'.csv')
+    drifter['latitude (deg)'] = drifter['latitude (deg)'].str.get(0)
+    drifter['longitude (deg)'] = drifter['longitude (deg)'].str.get(0)
+    drifter['sig wave height (m)'] = drifter['sig wave height (m)'].str.get(0)
+    drifter['time'] = drifter['time'].astype('datetime64[ns]')
+    drifter.set_index('time',inplace=True)
+    drifter['Unit_ID'] = b
+    drifter = drift_speed(drifter)
+    drifter = coordinates(drifter)
+    drifter.to_csv(ODIR+b+'.csv')
     
 #%% SHARC buoys - 2022 winter cruise
 #latname ='GPS Latitude'
