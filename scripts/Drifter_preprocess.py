@@ -220,7 +220,8 @@ for b,f in zip(buoy,file):
 #   and then re-deployed in spring and collected.
 #   (Thomson et al. 2023). 
 #   They have been already processed and downloaded as 
-#   .mat files. This allows the buoys to be read into python. 
+#   .mat files. 
+#    This allows the buoys to be read into python. 
 
 # convert the matlab time to readable python datetime
 def datenum_to_datetime(datenum):
@@ -247,35 +248,41 @@ file = ['SWIFT20_winter.mat','SWIFT20_spring.mat',
         'SWIFT21_winter.mat','SWIFT21_spring.mat']
 
 for b,f in zip(buoy,file):
-    # load the .mat files  
     fname = pjoin(BDIR+f)         
     contents = sio.loadmat(fname)
     teststruct = contents['SWIFT']
     teststruct.dtype
     # read in the variables
-    Hs = np.transpose(teststruct['sigwaveheight'].astype(float))
     lat = np.transpose(teststruct['lat'].astype(float))
     lon = np.transpose(teststruct['lon'].astype(float))
+    airtemp = np.transpose(teststruct['airtemp'].astype(float))
+    airpres = np.transpose(teststruct['airpres'].astype(float))
+    Hs = np.transpose(teststruct['sigwaveheight'].astype(float))
+    wave_T = np.transpose(teststruct['peakwaveperiod'].astype(float))
+    wave_dir = np.transpose(teststruct['peakwavedirT'].astype(float))
+    met_height = np.transpose(teststruct['metheight'].astype(float))
     matlab_time = np.transpose(teststruct['time'])
-    time = np.zeros(len(matlab_time)).astype(datetime) 
-    # matlab time to datetime
+    time = np.zeros(len(matlab_time)).astype(datetime)   
     i=0
     for i in range(len(matlab_time)):
         time[i] = datenum_to_datetime(float(matlab_time[i])).strftime(fmt)
         i=i+1
-    # create dataframe for the swift buoys
-    drifter = pd.DataFrame(data=[time, lat, lon, Hs]).T
-    drifter.columns =['time', 'latitude (deg)', 'longitude (deg)', 'sig wave height (m)']
-    # remove the brackets around the values in each column
-    drifter['latitude (deg)'] = drifter['latitude (deg)'].str.get(0)
-    drifter['longitude (deg)'] = drifter['longitude (deg)'].str.get(0)
-    drifter['sig wave height (m)'] = drifter['sig wave height (m)'].str.get(0)
+    # create dataframe for the swift buoy
+    drifter = pd.DataFrame(data=[time, lat, lon, airtemp, airpres,
+                                 Hs, wave_T, wave_dir, met_height]).T
+    drifter.columns =['time', 'latitude (deg)', 'longitude (deg)', 
+                      'temperature (degC)','barometric_pressure (hPa)',
+                      'sig wave height (m)', 'wave period (s)',
+                      'wave dir (degs)', 'met height (m)']
     drifter['time'] = drifter['time'].astype('datetime64[ns]')
     drifter.set_index('time',inplace=True)
+    # remove the brackets around the values in each column
+    for column in drifter:
+        drifter[column] = drifter[column].str.get(0)
     drifter['Unit_ID'] = b
     drifter = drift_speed(drifter)
     drifter = coordinates(drifter)
-    drifter.to_csv(ODIR+b+'.csv')
+    drifter.to_csv(BDIR_P+b+'.csv')
     
 #%% SHARC buoys - 2022 winter cruise
 #latname ='GPS Latitude'
