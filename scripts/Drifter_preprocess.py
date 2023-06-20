@@ -9,7 +9,7 @@ names
 
 Created on Tue Dec 28 15:03:27 2021
 
-@author: Marcello Vichi (UCT)
+@author: Marcello Vichi, Ashleigh Womack (UCT)
 """
 
 import pandas as pd
