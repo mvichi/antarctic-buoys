@@ -6,7 +6,7 @@ Created on Thu May  4 13:13:49 2023
 Reads preprocessed files and ERA5 data for computing the 
 drift response to atmospheric forcing:
 - Wind factor, turning angle 
-- Correlation (Pearson and vector)
+- Correlation coefficients (Pearson and vector)
 - residual current
 - Power Spectral Analysis of the Drifter Velocity
   Adapted from the book: Modelling Methods for Marine Sciences 
@@ -157,7 +157,7 @@ def drift_response(drifter):
         Drifter DataFrame
     Returns
     -------
-    theta_degs, WF, R2v, R2p : numpy.float64
+    theta_degs, WF, R2v, R2p , p-value: numpy.float64
     '''
     # variables (component - mean)
     u   = drifter['u (m/s)'] - np.mean(drifter['u (m/s)'])
@@ -190,14 +190,15 @@ def drift_response(drifter):
 
     WF = ((c1 + c2 - c3 + c4)/(u10_2 + v10_2))  
     
-    # vector coefficient of determination
+    # vector correlation
     R2v = np.square((c1 + c2 - c3 + c4)/(np.sqrt(u10_2 + v10_2)*np.sqrt(u_2 + v_2)))
 
-    # Pearson coefficient of determination
-    R2p = np.square(scipy.stats.pearsonr(drifter['U10_E5 (m/s)'][1:], 
-                                                 drifter['U (m/s)'][1:]))
+    # Pearson correlation
+    r, p = scipy.stats.pearsonr(drifter['U10_E5 (m/s)'][1:], 
+                                                 drifter['U (m/s)'][1:])
+    R2p = np.square(r)
     
-    return theta, theta_degs, WF, R2v, R2p
+    return theta, theta_degs, WF, R2v, R2p, p
 
 #%% Use the drift response measurements to estimate the underlying currents
 def current_estimation(drifter,theta, WF):
