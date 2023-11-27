@@ -2,7 +2,7 @@ clear all
 close all
 
 %% Read in the file 
-addpath '/home/....'
+addpath '/home/...'
 
 % In a folder list all the AMSR2 files you want to loop over
 MyFolderInfo = dir('*.nc');
