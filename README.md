@@ -43,8 +43,8 @@ This is the sequence of operations:
 5.	Relative (two-particle) dispersion of the buoy cluster ([Cluster_rel_dispersion.py](https://github.com/mvichi/antarctic-buoys/blob/main/scripts/Cluster_rel_dispersion.py))
       *	NOTE: Read in [Functions_rel_dispersion.py](https://github.com/mvichi/antarctic-buoys/blob/main/scripts/Functions_rel_dispersion.py) file before 
       *	Includes the computation of the deformation proxy and its spectral analysis
-6.   Meridional distance of the buoy from the ice edge (daiy) ([AMSR2_distance.py](https://github.com/mvichi/antarctic-buoys/blob/main/scripts/AMSR2_distance.py)
-      * NOTE: First compute the daily 0 % SIC ice edge. This is for done using the AMSR2 3.125 km product [AMSR2_ice_edge_cal.m](https://github.com/mvichi/antarctic-buoys/blob/main/scripts/AMSR2_ice_edge_calc.m)
+6.   Meridional distance of the buoy from the ice edge (daiy) (([AMSR2_distance.py](https://github.com/mvichi/antarctic-buoys/blob/main/scripts/AMSR2_distance.py))
+      * NOTE: First compute the daily 0 % SIC ice edge. This is for done using the AMSR2 3.125 km product ([AMSR2_ice_edge_cal.m](https://github.com/mvichi/antarctic-buoys/blob/main/scripts/AMSR2_ice_edge_calc.m))
         
 ## Data source
 The 2019 Winter and Spring Cruise buoy used in the analysis is published here:
