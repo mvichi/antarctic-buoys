@@ -1,7 +1,7 @@
 # Antarctic buoys: a repository of diagnostic tools for analysing sea-ice drifters in the Antarctic marginal ice zone
 _Authors: Ashleigh Womack, Marcello Vichi_
 
-This is a repository for the computation of diagnostics related to sea-ice drifters in the Antarctic marginal ice zone (MIZ). The diagnostics have been used for the data analysis in Womack et al. (submitted to The Cryosphere). Preprint DOI:  https://doi.org/10.5194/egusphere-2023-1076.
+This is a repository for the computation of diagnostics related to sea-ice drifters in the Antarctic marginal ice zone (MIZ). The diagnostics have been used for the data analysis in Womack, A., Alberello, A., de Vos, M., Toffoli, A., Verrinder, R., and Vichi, M.: A contrast in sea ice drift and deformation between winter and spring of 2019 in the Antarctic marginal ice zone, The Cryosphere, 18, 205–229, https://doi.org/10.5194/tc-18-205-2024, 2024.
 
 ## Brief description
 
